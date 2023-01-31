@@ -151,7 +151,7 @@ class CalculateCriteria:
                      float(allText[i+4].split(":")[1])
                      ))
 
-                i += 6  # 4
+                i += 6
 
             else:
                 self.allTurnCounts.append(currentTurn)

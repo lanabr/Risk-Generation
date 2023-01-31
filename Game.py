@@ -8,6 +8,7 @@ from Metrics import Metrics
 from Structures.Cards import ObjectiveCards
 from Structures.GamePhase import GamePhase
 from Structures.TurnPhase import TurnPhase
+from Structures.AddUnitsPhase import AddUnitsPhase
 import Action
 
 from time import time
@@ -37,7 +38,7 @@ class Game:
 
         for terr in friendTerritories:
             if terr.numberOfTroops > 1:
-                enemyTerritories = self.gameState.map.getFrontiersForTerritory(terr)
+                enemyTerritories = self.gameState.map.getEnemyFrontiersForTerritory(terr)
                 if terr.numberOfTroops >= 4:
                     actions += len(enemyTerritories) * 3
                 elif terr.numberOfTroops == 3:
@@ -79,22 +80,25 @@ class Game:
 
             cardsToPlayers = random.choices(objectiveDeck.deck, k=2)
 
-            self.listOfPlayers[0].card = cardsToPlayers[0]
-            self.listOfPlayers[1].card = cardsToPlayers[1]
+            self.listOfPlayers[0].objective = cardsToPlayers[0]
+            self.listOfPlayers[1].objective = cardsToPlayers[1]
 
         while self.gameState.gamePhase != GamePhase.GAME_OVER:
             if self.showActions:
-                self.gameState.map.showMap()          #colocar mais vezes?
+                self.gameState.map.showMap()
 
-            for player in self.listOfPlayers:
-                if self.gameState.gamePhase == GamePhase.ALLOCATION_PHASE:
-                    self.playAllocationPhase(player)
-                elif self.gameState.gamePhase == GamePhase.CONFLICT_PHASE:
-                    self.playConflictPhase(player)
+            if self.gameState.currentPlayer == self.listOfPlayers[0]:
+                player = self.listOfPlayers[0]
+            elif self.gameState.currentPlayer == self.listOfPlayers[1]:
+                player = self.listOfPlayers[1]
 
-                self.extractMetrics(metrics, player, moveChoicesP1AddUnits, moveChoicesP2AddUnits, moveChoicesP1Attack, moveChoicesP2Attack, moveChoicesP1MoveUnits, moveChoicesP2MoveUnits)
+            if self.gameState.gamePhase == GamePhase.ALLOCATION_PHASE:
+                self.playAllocationPhase(player)
+            elif self.gameState.gamePhase == GamePhase.CONFLICT_PHASE:
+                self.playConflictPhase(player)
 
-            # ver se esse if é aqui mesmo e se pode ser aqui, nas outras execuções aparecia os turnos separado por player
+            self.extractMetrics(player, moveChoicesP1AddUnits, moveChoicesP2AddUnits, moveChoicesP1Attack, moveChoicesP2Attack, moveChoicesP1MoveUnits, moveChoicesP2MoveUnits)
+
             if lastTurn != self.gameState.turnCount:
                 heuristicResult = self.heuristic.heuristicFromGameState(self.gameState)
 
@@ -148,6 +152,8 @@ class Game:
                 moveChoicesP2MoveUnits += self.getMoveChoicesMoveUnits(player.playerID)
 
     def playAllocationPhase(self, player):
+        action = None
+
         if self.parameters.initialTerritoriesMode == "random":
             territoryChosen = random.choice(self.gameState.map.neutralTerritories)
             action = Action.AllocationAction(territoryChosen.territoryId, player.playerID)
@@ -157,6 +163,8 @@ class Game:
         self.gameState.takeAction(action)
 
     def playConflictPhase(self, player):
+        action = None
+
         if self.gameState.turnPhase == TurnPhase.EXCHANGE_CARDS:
             action = self.exchangeCardsPhase(player)
         elif self.gameState.turnPhase == TurnPhase.ADD_UNITS:
@@ -168,13 +176,27 @@ class Game:
 
         self.gameState.takeAction(action)
 
-    def exchangeCardsPhase(self, player):  # fazer se pá uma nova ação com quantidade e lugar que tem que colocar, daí volta pro jogador
+    def exchangeCardsPhase(self, player):
+        action = None
+
         if 3 <= len(player.cards) <= 5:
             action = player.playExchangeCards(self.gameState)
+
+        if action is None:
+            action = Action.PassTurn
+
         return action
 
     def addUnitsPhase(self, player):
-        action = player.playAddUnits(self.gameState)
+        action = None
+
+        if self.gameState.addUnitsPhase == AddUnitsPhase.CONTINENT_PHASE:
+            action = player.addUnitsInContinent(self.gameState, self.gameState.continentToAdd(player.playerID))
+        elif self.gameState.addUnitsPhase == AddUnitsPhase.TERRITORY_PHASE:
+            action = player.addUnitsInTerritory(self.gameState, self.gameState.territoryToAdd(player.playerID))
+        elif self.gameState.addUnitsPhase == AddUnitsPhase.PICK_PHASE:
+            action = player.playAddUnits(self.gameState)
+
         return action
 
     def attackPhase(self, player):
@@ -190,6 +212,6 @@ if __name__ == "__main__":
     agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
     agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
 
-    game = Game(showActions=True, parameters=Parameters("/home/lana/Downloads/Risk-Content-Generation-master/parameters/map.json", "cards", 2, "attack", "random"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("/home/lana/Downloads/Risk-Content-Generation-master/parameters/map.json", "all", 3, "defense", "pick", "max"), listOfPlayers=[agent1, agent2])
 
     game.playtest().printMetrics()

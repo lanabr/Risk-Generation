@@ -1,14 +1,10 @@
-from Structures.PlayerID import PlayerID
-from typing import Iterator, Optional
-
-
 class Territory:
-    def __init__(self, territoryId: int, connections: dict, continent: int):
+    def __init__(self, territoryId, connections, continent):
         self.territoryId = territoryId
         self.continent = continent
-        self.ownedByPlayer = None
-        self.numberOfTroops = 0
-        self.paths = []
+        self._ownedByPlayer = None
+        self._numberOfTroops = 0
+        self._paths = []
 
         self.insertConnections(connections)
 
@@ -18,36 +14,38 @@ class Territory:
     def __hash__(self):
         return self.territoryId
 
-    def insertConnections(self, connections: dict):
+    def insertConnections(self, connections):
         for territory in connections[str(self.territoryId)]:
-            self.paths.append(territory)
+            self._paths.append(territory)
 
-    def paths(self) -> Iterator[int]:
+    @property
+    def paths(self):
         for i in self.paths:
             yield i
 
-    def canReach(self, territoryId) -> bool:
+    def canReach(self, territoryId):
         return territoryId in self.paths
 
-    def numberOfTroops(self) -> int:
-        return self.numberOfTroops
+    @property
+    def numberOfTroops(self):
+        return self._numberOfTroops
 
     def setOneTroop(self):
-        self.numberOfTroops = 1
+        self._numberOfTroops = 1
 
     def addTroops(self, troopsToAdd):
-        self.numberOfTroops += troopsToAdd
+        self._numberOfTroops += troopsToAdd
 
     def removeTroops(self, troopsToRemove):
-        self.numberOfTroops -= troopsToRemove
+        self._numberOfTroops -= troopsToRemove
 
     @property
-    def ownedByPlayer(self) -> Optional[PlayerID]:
+    def ownedByPlayer(self):
         if self.ownedByPlayer is None:
             return self.ownedByPlayer
         else:
             return None
 
     @ownedByPlayer.setter
-    def ownedByPlayer(self, playerName: PlayerID):
-        self.ownedByPlayer = playerName
+    def ownedByPlayer(self, playerName):
+        self._ownedByPlayer = playerName

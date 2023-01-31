@@ -11,6 +11,12 @@ class Action(ABC):
                     return True
             return False
 
+        if isinstance(self, AddUnitsInExchangeCardsAction):
+            if isinstance(o, AddUnitsInExchangeCardsAction):
+                if self.cardsToExchange == o.cardsToExchange:
+                    return True
+            return False
+
         if isinstance(self, AddUnitsInConflictAction):
             if isinstance(o, AddUnitsInConflictAction):
                 if self.territoryidToAdd == o.territoryidToAdd:
@@ -33,14 +39,17 @@ class Action(ABC):
         if isinstance(self, AllocationAction):
             return hash((self.territoryidToConquer, 0))
 
+        if isinstance(self, AddUnitsInExchangeCardsAction):
+            return hash((self.cardsToExchange, 1))
+
         if isinstance(self, AddUnitsInConflictAction):
-            return hash((self.territoryidToAdd, 1))
+            return hash((self.territoryidToAdd, 2))
 
         if isinstance(self, AttackWithUnitsInConflictAction):
-            return hash((self.territoryidAttacking, self.territoryidDefending, 2))
+            return hash((self.territoryidAttacking, self.territoryidDefending, 3))
 
         if isinstance(self, MoveUnitsInConflictAction):
-            return hash((self.territoryidFrom, self.territoryidTo, 3))
+            return hash((self.territoryidFrom, self.territoryidTo, 4))
 
         if isinstance(self, PassTurn):
             return hash(0)
@@ -50,6 +59,11 @@ class AllocationAction(Action):
     def __init__(self, territoryidToConquer, playerID):
         self.territoryidToConquer = territoryidToConquer
         self.playerID = playerID
+
+
+class AddUnitsInExchangeCardsAction(Action):
+    def __init__(self, cardsToExchange):
+        self.cardsToExchange = cardsToExchange
 
 
 class AddUnitsInConflictAction(Action):

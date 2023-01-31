@@ -6,18 +6,17 @@ import networkx as nx
 import json
 import copy
 import matplotlib.pyplot as plt
-import ra
 
 
 class Map:
     def __init__(self, mapPath):
         self.map = nx.Graph()
         self.loadMap(mapPath)
-        self.territories = []
-        self.connections = {}
-        self.continents = {}
-        self.continentsValue = {}
-        self.neutralTerritories = copy.deepcopy(self.territories)
+        self._territories = []
+        self._connections = {}
+        self._continents = {}
+        self._continentsValue = {}
+        self._neutralTerritories = copy.deepcopy(self.territories)
 
         self.playerColorSchema = {
             ValidPlayerColors.RED: "tomato",
@@ -53,42 +52,67 @@ class Map:
         with open(mapPath, "r") as fp:
             jsonDump = json.load(fp)
 
-        self.connections = jsonDump["connections"]
-        self.continents = jsonDump["continents"]
-        self.continentsValue = jsonDump["continentsValue"]
-        self.loadTerritories(jsonDump["territories"], self.connections)
+        self._connections = jsonDump["connections"]
+        self._continents = jsonDump["continents"]
+        self._continentsValue = jsonDump["continentsValue"]
+        self.__loadTerritories(jsonDump["territories"], self._connections)
 
-        self.loadEdgesOnMap()
+        self.__loadEdgesOnMap()
 
         mapping = dict(zip(self.map, range(0, len(list(self.map)))))
         self.map = nx.relabel_nodes(self.map, mapping)
 
         plt.ion()  # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ion.html
 
-    def loadTerritories(self, territories, connections):
+    def __loadTerritories(self, territories, connections):
         for i in territories:
-            continent = self.findContinentByTerritory(i)
-            newTerritory = Territory(i, self.connections, continent)
+            continent = self.__findContinentByTerritory(i)
+            newTerritory = Territory(i, self._connections, continent)
             self.territories.append(newTerritory)
             self.map.add_node(newTerritory)
 
         self.territories.sort(key=lambda x: x.territoryId)
 
-    def loadEdgesOnMap(self):
-        for conn in self.connections:
-            for edge in self.connections[conn]:
-                self.map.add_edge(self.territories[int(conn)], self.territories[edge])
-
-    def findContinentByTerritory(self, territory):
-        for continent in self.continents.keys():
-            if territory in self.continents[continent]:
+    def __findContinentByTerritory(self, territory):
+        for continent in self._continents.keys():
+            if territory in self._continents[continent]:
                 return continent
 
-    getFriendFrontiersForTerritory
-    getFrontiersForTerritory
+    def __loadEdgesOnMap(self):
+        for conn in self._connections:
+            for edge in self._connections[conn]:
+                self.map.add_edge(self.territories[int(conn)], self.territories[edge])
+
+    @property
+    def territories(self):
+        return self._territories
+
+    @property
+    def neutralTerritories(self):
+        return self._neutralTerritories
+
+    @property
+    def continents(self):
+        return self._continents
+
+    @property
+    def continentsValue(self):
+        return self._continentsValue
+
+    def neutralTerritoriesFromContinent(self, continent: str):
+        returnList = []
+        for terr in self.neutralTerritories:
+            if terr.continent == continent:
+                returnList.append(terr)
+        return returnList
+
+    def captureNeutralTerritory(self, territory, playerID):
+        territory.ownedByPlayer = playerID
+        territory.addTroops(2)
+        self.neutralTerritories.remove(territory)
 
     def getTerritoriesFromPlayer(self, playerID):
-        returnList: list[Territory] = []
+        returnList = []
 
         for territory in self.territories:
             if territory.ownedByPlayer == playerID:
@@ -96,34 +120,59 @@ class Map:
 
         return returnList
 
+    def getTerritoriesFromPlayerInFrontierWithEnemy(self, playerID):
+        returnList = []
+
+        playerTerritories = self.getTerritoriesFromPlayer(playerID)
+
+        for territory in playerTerritories:
+            territoryInFrontier = False
+            for enemyTerritoryId in self.getTerritoriesIDAdjacent(territory):
+                if self.territories[enemyTerritoryId].ownedByPlayer != playerID:
+                    territoryInFrontier = True
+            if territoryInFrontier:
+                returnList.append(territory)
+
+        return returnList
+
+    def getEnemyFrontiersForTerritory(self, territoryToAnalyze: Territory):
+        returnList = []
+        listIdTerritories = list(self.map.neighbors(territoryToAnalyze.territoryId))
+        for terrId in listIdTerritories:
+            if self.territories[terrId].ownedByPlayer != territoryToAnalyze.ownedByPlayer:
+                returnList.append(self.territories[terrId])
+
+        return returnList
+
+    def firstGetAdjacencyFromFrontierForMoveUnits(self, playerId, listOfMoved):
+        territoriesInFrontier = self.getTerritoriesFromPlayerInFrontierWithEnemy(playerId)
+        territoriesIdInFrontier = [o.territoryId for o in territoriesInFrontier]
+        territoriesIdInFrontier = [i for i in territoriesIdInFrontier if i not in listOfMoved]
+        playerTerritories = self.getTerritoriesFromPlayer(playerId)
+
+        for territory in playerTerritories:
+            if territory.numberOfTroops > 1:
+                territoryNumberOfTroops = 100
+                enemyTerritoryAdjacent = False
+                for territoryIdInAdjacency in self.getTerritoriesIDAdjacent(territory):
+                    if self.territories[territoryIdInAdjacency].ownedByPlayer != playerId:
+                        enemyTerritoryAdjacent = True
+                    if territoryIdInAdjacency in territoriesIdInFrontier:
+                        if self.territories[territoryIdInAdjacency].numberOfTroops < territoryNumberOfTroops:
+                            territoryNumberOfTroops = self.territories[territoryIdInAdjacency].numberOfTroops
+                    if territoryIdInAdjacency is not None and enemyTerritoryAdjacent is False and territoryIdInAdjacency in territoriesIdInFrontier:
+                        return territory.territoryId, territoryIdInAdjacency
+        return None
+
     def getTerritoriesFromContinent(self, continent):
         returnList = []
-        for territoryId in self.continents[continent]:
+        for territoryId in self._continents[continent]:
             returnList.append(self.territories[territoryId])
 
         return returnList
 
     def getTerritoriesIDAdjacent(self, territory):
         return list(self.map.neighbors(territory.territoryId))
-
-    def showMap(self, seed: int = 639):
-        occupationColors = self.colorTerritoryOccupation()
-        continentColors = self.colorTerritoryContinent()
-        territoryLabels = self.territoryLabels()
-
-        plt.clf()
-        pos = nx.spring_layout(self.map)
-
-        plot = nx.draw_networkx_nodes(self.map, pos=pos,
-                                      node_color=occupationColors, edgecolors=continentColors,
-                                      linewidths=2.0, node_size=550)
-
-        nx.draw_networkx_edges(self.map, pos=pos)
-        nx.draw_networkx_labels(self.map, pos=pos,
-                                labels=territoryLabels, font_size=9)
-
-        plt.show()
-        plt.pause(0.01)
 
     def colorTerritoryOccupation(self):
         returnList = []
@@ -133,7 +182,7 @@ class Map:
                 returnList.append(self.playerColorSchema[ValidPlayerColors.WHITE])
 
             else:
-                returnList.append(self.playerColorSchema[territory.ownedByPlayer.playerColor])
+                returnList.append(self.playerColorSchema[territory.ownedByPlayer.playerColor])  # type: ignore
 
         return returnList
 
@@ -153,4 +202,36 @@ class Map:
             returnList[territory.territoryId] = (str(territory.territoryId) + "(" + str(territory.numberOfTroops) + ")")
 
         return returnList
+
+    def getFriendFrontiersForTerritory(self, territoryToAnalyze: Territory):
+        returnList = []
+        listIdTerritories = list(self.map.neighbors(territoryToAnalyze.territoryId))
+        for terrId in listIdTerritories:
+            if self.territories[terrId].ownedByPlayer == territoryToAnalyze.ownedByPlayer:
+                returnList.append(self.territories[terrId])
+
+        return returnList
+
+    def showMap(self):
+        occupationColors = self.colorTerritoryOccupation()
+        continentColors = self.colorTerritoryContinent()
+        territoryLabels = self.territoryLabels()
+
+        plt.clf()
+        pos = nx.spring_layout(self.map)
+
+        plot = nx.draw_networkx_nodes(self.map, pos=pos,
+                                      node_color=occupationColors, edgecolors=continentColors,
+                                      linewidths=2.0, node_size=550)
+
+        nx.draw_networkx_edges(self.map, pos=pos)
+        nx.draw_networkx_labels(self.map, pos=pos,
+                                labels=territoryLabels, font_size=9)
+
+        plt.show()
+        plt.pause(0.01)
+
+
+
+
 
