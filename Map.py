@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 class Map:
     def __init__(self, mapPath):
         self.map = nx.Graph()
-        self.loadMap(mapPath)
         self._territories = []
         self._connections = {}
         self._continents = {}
@@ -47,6 +46,8 @@ class Map:
             ValidContinentColors.DEEPPINK: "deeppink",
             ValidContinentColors.HOTPINK: "hotpink"
         }
+
+        self.loadMap(mapPath)
 
     def loadMap(self, mapPath):
         with open(mapPath, "r") as fp:
