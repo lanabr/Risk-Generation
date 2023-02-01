@@ -14,6 +14,7 @@ import Action
 from time import time
 import random
 
+
 class Game:
     """
     Implementa um jogo com parâmetros, jogadores e regras.
@@ -116,10 +117,10 @@ class Game:
                 if self.showActions:
                     print("turn: " + str(self.gameState.turnCount))
                     print()
-                    print(heuristicResult[0][0].playerName + ": " + str(heuristicResult[0][1]))
-                    print(heuristicResult[1][0].playerName + ": " + str(heuristicResult[1][1]))
-                    print(heuristicResult[0][0].playerName + ": " + str(totalP1))
-                    print(heuristicResult[1][0].playerName + ": " + str(totalP2))
+                    print(heuristicResult[0][0].playerID.playerName + ": " + str(heuristicResult[0][1]))
+                    print(heuristicResult[1][0].playerID.playerName + ": " + str(heuristicResult[1][1]))
+                    print(heuristicResult[0][0].playerID.playerName + ": " + str(totalP1))
+                    print(heuristicResult[1][0].playerID.playerName + ": " + str(totalP2))
                     print()
 
             if self.gameState.turnCount > maxNumberOfTurns or (time() - beginTime) > maxNumberOfSeconds:
@@ -129,8 +130,8 @@ class Game:
         metrics.endGame((heuristicResult[0][1], heuristicResult[1][1], totalP1, totalP2))
 
         if self.showActions:
-            print(heuristicResult[0][0].playerName + ": " + str(heuristicResult[0][1]))
-            print(heuristicResult[1][0].playerName + ": " + str(heuristicResult[1][1]))
+            print(heuristicResult[0][0].playerID.playerName + ": " + str(heuristicResult[0][1]))
+            print(heuristicResult[1][0].playerID.playerName + ": " + str(heuristicResult[1][1]))
 
         return metrics
 
@@ -167,6 +168,8 @@ class Game:
 
         if self.gameState.turnPhase == TurnPhase.EXCHANGE_CARDS:
             action = self.exchangeCardsPhase(player)
+            if not isinstance(action, Action.PassTurn):
+                print("post action2: ", action.cardsToExchange)
         elif self.gameState.turnPhase == TurnPhase.ADD_UNITS:
             action = self.addUnitsPhase(player)
         elif self.gameState.turnPhase == TurnPhase.ATTACK_ENEMY:
@@ -183,7 +186,10 @@ class Game:
             action = player.playExchangeCards(self.gameState)
 
         if action is None:
-            action = Action.PassTurn
+            action = Action.PassTurn()
+
+        if not isinstance(action, Action.PassTurn):
+            print("post action1: ", action.cardsToExchange)
 
         return action
 
@@ -191,11 +197,16 @@ class Game:
         action = None
 
         if self.gameState.addUnitsPhase == AddUnitsPhase.CONTINENT_PHASE:
-            action = player.addUnitsInContinent(self.gameState, self.gameState.continentToAdd(player.playerID))
+            if self.gameState.hasContinentTroopsToAdd(player.playerID):
+                action = player.addUnitsInContinent(self.gameState, self.gameState.continentToAdd(player.playerID))
         elif self.gameState.addUnitsPhase == AddUnitsPhase.TERRITORY_PHASE:
-            action = player.addUnitsInTerritory(self.gameState, self.gameState.territoryToAdd(player.playerID))
+            if self.gameState.hasTerritoryTroopsToAdd(player.playerID):
+                action = player.addUnitsInTerritory(self.gameState, self.gameState.territoryToAdd(player.playerID))
         elif self.gameState.addUnitsPhase == AddUnitsPhase.PICK_PHASE:
             action = player.playAddUnits(self.gameState)
+
+        if action is None:
+            action = Action.PassTurn()
 
         return action
 
@@ -212,6 +223,6 @@ if __name__ == "__main__":
     agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
     agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
 
-    game = Game(showActions=True, parameters=Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "defense", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
 
     game.playtest().printMetrics()

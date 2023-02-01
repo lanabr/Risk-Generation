@@ -15,6 +15,9 @@ class Map:
         self._connections = {}
         self._continents = {}
         self._continentsValue = {}
+
+        self.loadMap(mapPath)
+
         self._neutralTerritories = copy.deepcopy(self.territories)
 
         self.playerColorSchema = {
@@ -47,8 +50,6 @@ class Map:
             ValidContinentColors.HOTPINK: "hotpink"
         }
 
-        self.loadMap(mapPath)
-
     def loadMap(self, mapPath):
         with open(mapPath, "r") as fp:
             jsonDump = json.load(fp)
@@ -67,16 +68,16 @@ class Map:
 
     def __loadTerritories(self, territories, connections):
         for i in territories:
-            continent = self.__findContinentByTerritory(i)
+            continent = self.findContinentByTerritory(i)
             newTerritory = Territory(i, self._connections, continent)
             self.territories.append(newTerritory)
             self.map.add_node(newTerritory)
 
         self.territories.sort(key=lambda x: x.territoryId)
 
-    def __findContinentByTerritory(self, territory):
+    def findContinentByTerritory(self, territoryidToAdd):
         for continent in self._continents.keys():
-            if territory in self._continents[continent]:
+            if territoryidToAdd in self._continents[continent]:
                 return continent
 
     def __loadEdgesOnMap(self):
@@ -100,7 +101,7 @@ class Map:
     def continentsValue(self):
         return self._continentsValue
 
-    def neutralTerritoriesFromContinent(self, continent: str):
+    def neutralTerritoriesFromContinent(self, continent):
         returnList = []
         for terr in self.neutralTerritories:
             if terr.continent == continent:
@@ -109,7 +110,7 @@ class Map:
 
     def captureNeutralTerritory(self, territory, playerID):
         territory.ownedByPlayer = playerID
-        territory.addTroops(2)
+        territory.addTroops(1)
         self.neutralTerritories.remove(territory)
 
     def getTerritoriesFromPlayer(self, playerID):
@@ -167,6 +168,7 @@ class Map:
 
     def getTerritoriesFromContinent(self, continent):
         returnList = []
+
         for territoryId in self._continents[continent]:
             returnList.append(self.territories[territoryId])
 
@@ -231,6 +233,8 @@ class Map:
 
         plt.show()
         plt.pause(0.01)
+
+
 
 
 

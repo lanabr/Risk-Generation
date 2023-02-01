@@ -21,6 +21,6 @@ class Heuristic:
     def heuristicFromGameState(self, gs):
         returnList = []
         for player in gs.listOfPlayers:
-            hPlayer = self.heuristicForPlayer(gs, player)
+            hPlayer = self.heuristicForPlayer(gs, player.playerID)
             returnList.append((player, hPlayer))
         return returnList

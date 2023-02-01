@@ -34,6 +34,8 @@ class GameState:
         self.territoryToAddTroops = None
 
         self.terrDeck = TerritoryCards(self.map)
+        self.cardGiven = False
+
         self.troopsPerCard = [2, 4, 6, 8, 10, 12, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 80, 85, 90, 95, 100]
         self.currentChange = 0
 
@@ -47,7 +49,7 @@ class GameState:
             for continent in range(len(player.card.totalContinents)):
                 if player.card.totalContinents[continent] == 1:
                     for terr in self.map.getTerritoriesFromContinent(str(continent)):
-                        if terr.ownedByPlayer != player:
+                        if terr.__ownedByPlayer != player:
                             flag = 1
                             break
             if flag == 0:
@@ -77,7 +79,7 @@ class GameState:
                     self.gamePhase = GamePhase.GAME_OVER
         elif self.parameters.goalBasedOn == "all":
             for player in self.listOfPlayers:
-                if len(self.map.getTerritoriesFromPlayer(player)) == len(self.map.territories):
+                if len(self.map.getTerritoriesFromPlayer(player.playerID)) == len(self.map.territories):
                     self.gamePhase = GamePhase.GAME_OVER
 
     def passTurn(self):
@@ -88,8 +90,9 @@ class GameState:
         self.currentPlayer = self.listOfPlayers[self.currentPlayerNumber]
         self.checkGamePhase()
 
-        self.troopsToAddPickPhase = self.calculateNumberOfTroops(self.currentPlayer)
+        self.troopsToAddPickPhase = self.calculateNumberOfTroops(self.currentPlayer.playerID)
         self.troopsToAddContinentPhase = self.troopsFromContinentsOwnedByPlayer(self.currentPlayer.playerID)
+        self.cardGiven = False
 
     def checkGamePhase(self):
         if len(self.map.neutralTerritories) == 0:
@@ -128,6 +131,9 @@ class GameState:
             return
 
     def takeAction(self, action):
+        if not isinstance(action, Action.PassTurn) and self.turnPhase == TurnPhase.EXCHANGE_CARDS:
+            print("in action: ", action.cardsToExchange)
+
         if isinstance(action, Action.PassTurn):
             self.passTurnPhase()
             return
@@ -142,6 +148,7 @@ class GameState:
 
         if self.turnPhase == TurnPhase.EXCHANGE_CARDS:
             assert isinstance(action, Action.AddUnitsInExchangeCardsAction)
+            print(self.currentPlayer.cards)
             self.currentPlayer.cards.remove(action.cardsToExchange[0])
             self.currentPlayer.cards.remove(action.cardsToExchange[1])
             self.currentPlayer.cards.remove(action.cardsToExchange[2])
@@ -159,8 +166,8 @@ class GameState:
             self.map.territories[action.territoryidToAdd].addTroops(1)
 
             if self.addUnitsPhase == AddUnitsPhase.CONTINENT_PHASE:
-                self.troopsToAddContinentPhase -= 1
-                if self.troopsToAddContinentPhase[self.map.__findContinentByTerritory(action.territoryidToAdd)] <= 0 and sum(self.troopsToAddContinentPhase) <= 0:
+                self.troopsToAddContinentPhase[int(self.continentToAdd(self.currentPlayer.playerID))] -= 1
+                if self.troopsToAddContinentPhase[int(self.map.findContinentByTerritory(action.territoryidToAdd))] <= 0 and sum(self.troopsToAddContinentPhase) <= 0:
                     self.passTurnPhase()
                 return
 
@@ -192,12 +199,17 @@ class GameState:
             if self.map.territories[territoryidDefending].numberOfTroops <= 0:
                 if self.parameters.troopsToNewTerritory == "min":
                     self.map.territories[territoryidAttacking].removeTroops(combatResult[0])
-                    self.map.territories[territoryidDefending].setTroops(combatResult[0])
+                    self.map.territories[territoryidDefending].addTroops(combatResult[0])
                 elif self.parameters.troopsToNewTerritory == "max":
                     self.map.territories[territoryidAttacking].removeTroops(self.map.territories[territoryidAttacking].numberOfTroops - 1)
-                    self.map.territories[territoryidDefending].setTroops(self.map.territories[territoryidAttacking].numberOfTroops - 1)
-                self.map.territories[territoryidDefending].ownedByPlayer = self.currentPlayer
-                self.currentPlayer.terrCards.append(random.choice(self.terrDeck.deck))
+                    self.map.territories[territoryidDefending].addTroops(self.map.territories[territoryidAttacking].numberOfTroops - 1)
+                self.map.territories[territoryidDefending].ownedByPlayer = self.currentPlayer.playerID
+
+                if self.cardGiven is False:
+                    cardToPlayer = random.choice(self.terrDeck.deck)
+                    self.currentPlayer.cards.append(cardToPlayer)
+                    self.terrDeck.deck.remove(cardToPlayer)
+                    self.cardGiven = True
 
                 self.checkIfGameOver()
 
@@ -246,31 +258,31 @@ class GameState:
         troopsPerContinent = [0 for _ in range(len(continentList))]
 
         for continent in continentList:
-            troopsPerContinent.insert(continent, self.map.continentsValue[continent])
+            troopsPerContinent.insert(int(continent), self.map.continentsValue[continent])
 
         return troopsPerContinent
 
     def calculateNumberOfTroops(self, playerID):
         numberOfTerritories = len(self.map.getTerritoriesFromPlayer(playerID))
 
-        if self.turnCount > 0:
-            troopsFromContinents = sum(self.troopsFromContinentsOwnedByPlayer(playerID))
-        else:
-            troopsFromContinents = 0
+        return max(3, math.ceil(numberOfTerritories / self.parameters.troopsWonBeginTurn))
 
-        return troopsFromContinents + max(3, math.ceil(numberOfTerritories / self.parameters.troopsWonBeginTurn))
+    def hasContinentTroopsToAdd(self, playerID):
+        return sum(self.troopsToAddContinentPhase) > 0
 
     def continentToAdd(self, playerID):
-        if sum(self.troopsToAddContinentPhase) > 0:
-            for continent in range(len(self.troopsToAddContinentPhase)):
-                if self.troopsToAddContinentPhase[continent] > 0:
-                    return continent
+        for continent in range(len(self.troopsToAddContinentPhase)):
+            if self.troopsToAddContinentPhase[continent] > 0:
+                return str(continent)
+
+    def hasTerritoryTroopsToAdd(self, playerID):
+        return self.territoryToAddTroops is True
 
     def territoryToAdd(self, playerID):
         return self.territoryToAddTroops
 
     def __eq__(self, o):
         for terrId in range(len(self.map.territories)):
-            if self.map.territories[terrId].ownedByPlayer != o.map.territory[terrId].ownedByPlayer:
+            if self.map.territories[terrId].__ownedByPlayer != o.map.territory[terrId].__ownedByPlayer:
                 return False
         return True

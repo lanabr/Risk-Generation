@@ -57,7 +57,7 @@ class RuleAgent:
         for continent in gameState.map.continents:
             emptyContinent = True
             for terr in gameState.map.getTerritoriesFromContinent(continent):
-                if gameState.map.territory[terr.territoryId].ownedByPlayer is not None:
+                if gameState.map.territories[terr.territoryId].ownedByPlayer is not None:
                     emptyContinent = False
 
             if emptyContinent:
@@ -73,7 +73,7 @@ class RuleAgent:
     def playAddUnits(self, gameState):
         gameMap = gameState.map
 
-        allTerr = gameMap.getTerritoriesFromPlayerInFrontier(self.playerID)
+        allTerr = gameMap.getTerritoriesFromPlayerInFrontierWithEnemy(self.playerID)
 
         lowestTroop = 10000
         lowestTerr = None
@@ -110,35 +110,64 @@ class RuleAgent:
     def playExchangeCards(self, gameState):
         action = None
 
+        print("cards: ", self.cards, "player", self.playerID)
+
         if len(self.cards) == 3 or len(self.cards) == 4:
             for card in self.cards:
                 if card.territory in gameState.map.getTerritoriesFromPlayer(self.playerID):
+                    self.cards.remove(card)
+                    card1 = random.choice(self.cards)
+                    self.cards.remove(card1)
                     card2 = random.choice(self.cards)
-                    card3 = random.choice(self.cards)
-                    cards = [card, card2, card3]
+
+                    self.cards.append(card)
+                    self.cards.append(card1)
+
+                    cards = [card, card1, card2]
 
                     gameState.territoryToAddTroops = card.territory
 
                     action = Action.AddUnitsInExchangeCardsAction(cards)
+                    print("pre action1: ", action.cardsToExchange)
 
                     return action
 
         if len(self.cards) == 5:
             for card in self.cards:
                 if card.territory in gameState.map.getTerritoriesFromPlayer(self.playerID):
+                    self.cards.remove(card)
+                    card1 = random.choice(self.cards)
+                    self.cards.remove(card1)
                     card2 = random.choice(self.cards)
-                    card3 = random.choice(self.cards)
-                    cards = [card, card2, card3]
+
+                    self.cards.append(card)
+                    self.cards.append(card1)
+
+                    cards = [card, card1, card2]
 
                     gameState.territoryToAddTroops = card.territory
 
                     action = Action.AddUnitsInExchangeCardsAction(cards)
+                    print("pre action2: ", action.cardsToExchange)
 
                     return action
 
             if action is None:
-                cards = random.choices(self.cards, k=3)
+                card1 = random.choice(self.cards)
+                self.cards.remove(card1)
+                card2 = random.choice(self.cards)
+                self.cards.remove(card2)
+                card3 = random.choice(self.cards)
+                self.cards.remove(card3)
+
+                self.cards.append(card1)
+                self.cards.append(card2)
+                self.cards.append(card3)
+
+                cards = [card1, card2, card3]
+
                 action = Action.AddUnitsInExchangeCardsAction(cards)
+                print("pre action3: ", action.cardsToExchange)
 
                 return action
 

@@ -82,12 +82,12 @@ class TerritoryCards:
     def __init__(self, map):
         self.deck = []
 
-        for terr in range(len(map.territories), 3):
-            self.deck.append(CardTerritory(map.territories[terr].territoryId, "infantry"))
+        for terr in range(0, len(map.territories), 3):
+            self.deck.append(CardTerritory(map.territories[terr], "infantry"))
             if map.territories[terr+1]:
-                self.deck.append(CardTerritory(map.territories[terr+1].territoryId, "cavalry"))
+                self.deck.append(CardTerritory(map.territories[terr+1], "cavalry"))
             if map.territories[terr+2]:
-                self.deck.append(CardTerritory(map.territories[terr+2].territoryId, "artillery"))
+                self.deck.append(CardTerritory(map.territories[terr+2], "artillery"))
 
 
 if __name__ == "__main__":

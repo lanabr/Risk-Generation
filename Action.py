@@ -13,7 +13,7 @@ class Action(ABC):
 
         if isinstance(self, AddUnitsInExchangeCardsAction):
             if isinstance(o, AddUnitsInExchangeCardsAction):
-                if self.cardsToExchange == o.cardsToExchange:
+                if self.cardsToExchange[0] == o.cardsToExchange[0] and self.cardsToExchange[1] == o.cardsToExchange[1] and self.cardsToExchange[2] == o.cardsToExchange[2]:
                     return True
             return False
 
