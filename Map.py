@@ -6,6 +6,8 @@ import networkx as nx
 import json
 import copy
 import matplotlib.pyplot as plt
+import random
+import numpy as np
 
 
 class Map:
@@ -215,7 +217,10 @@ class Map:
 
         return returnList
 
-    def showMap(self):
+    def showMap(self, seed = 639):
+        random.seed(seed)
+        np.random.seed(seed)
+
         occupationColors = self.colorTerritoryOccupation()
         continentColors = self.colorTerritoryContinent()
         territoryLabels = self.territoryLabels()
