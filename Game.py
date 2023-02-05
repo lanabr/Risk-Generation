@@ -98,7 +98,7 @@ class Game:
             elif self.gameState.gamePhase == GamePhase.CONFLICT_PHASE:
                 self.playConflictPhase(player)
 
-            self.extractMetrics(player, moveChoicesP1AddUnits, moveChoicesP2AddUnits, moveChoicesP1Attack, moveChoicesP2Attack, moveChoicesP1MoveUnits, moveChoicesP2MoveUnits)
+            moveChoicesP1AddUnits, moveChoicesP2AddUnits, moveChoicesP1Attack, moveChoicesP2Attack, moveChoicesP1MoveUnits, moveChoicesP2MoveUnits = self.extractMetrics(player, moveChoicesP1AddUnits, moveChoicesP2AddUnits, moveChoicesP1Attack, moveChoicesP2Attack, moveChoicesP1MoveUnits, moveChoicesP2MoveUnits)
 
             if lastTurn != self.gameState.turnCount:
                 heuristicResult = self.heuristic.heuristicFromGameState(self.gameState)
@@ -136,7 +136,7 @@ class Game:
         return metrics
 
     def extractMetrics(self, player, moveChoicesP1AddUnits, moveChoicesP2AddUnits, moveChoicesP1Attack, moveChoicesP2Attack, moveChoicesP1MoveUnits, moveChoicesP2MoveUnits):
-        if self.gameState.turnPhase == TurnPhase.ADD_UNITS:
+        if self.gameState.turnPhase == TurnPhase.ADD_UNITS and self.gameState.gamePhase == GamePhase.CONFLICT_PHASE:
             if player.playerID == self.listOfPlayers[0].playerID:
                 moveChoicesP1AddUnits += self.getMoveChoicesAddUnits(player.playerID)
             else:
@@ -151,6 +151,8 @@ class Game:
                 moveChoicesP1MoveUnits += self.getMoveChoicesMoveUnits(player.playerID)
             else:
                 moveChoicesP2MoveUnits += self.getMoveChoicesMoveUnits(player.playerID)
+
+        return moveChoicesP1AddUnits, moveChoicesP2AddUnits, moveChoicesP1Attack, moveChoicesP2Attack, moveChoicesP1MoveUnits, moveChoicesP2MoveUnits
 
     def playAllocationPhase(self, player):
         action = None
@@ -223,6 +225,6 @@ if __name__ == "__main__":
     agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
     agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
 
-    game = Game(showActions=True, parameters=Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
 
     game.playtest().printMetrics()
