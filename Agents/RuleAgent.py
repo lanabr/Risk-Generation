@@ -110,8 +110,6 @@ class RuleAgent:
     def playExchangeCards(self, gameState):
         action = None
 
-        print("cards: ", self.cards, "player", self.playerID)
-
         if len(self.cards) == 3 or len(self.cards) == 4:
             for card in self.cards:
                 if card.territory in gameState.map.getTerritoriesFromPlayer(self.playerID):
@@ -128,7 +126,6 @@ class RuleAgent:
                     gameState.territoryToAddTroops = card.territory
 
                     action = Action.AddUnitsInExchangeCardsAction(cards)
-                    print("pre action1: ", action.cardsToExchange)
 
                     return action
 
@@ -148,7 +145,6 @@ class RuleAgent:
                     gameState.territoryToAddTroops = card.territory
 
                     action = Action.AddUnitsInExchangeCardsAction(cards)
-                    print("pre action2: ", action.cardsToExchange)
 
                     return action
 
@@ -167,7 +163,6 @@ class RuleAgent:
                 cards = [card1, card2, card3]
 
                 action = Action.AddUnitsInExchangeCardsAction(cards)
-                print("pre action3: ", action.cardsToExchange)
 
                 return action
 

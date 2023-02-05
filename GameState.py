@@ -131,9 +131,6 @@ class GameState:
             return
 
     def takeAction(self, action):
-        if not isinstance(action, Action.PassTurn) and self.turnPhase == TurnPhase.EXCHANGE_CARDS:
-            print("in action: ", action.cardsToExchange)
-
         if isinstance(action, Action.PassTurn):
             self.passTurnPhase()
             return
@@ -148,7 +145,6 @@ class GameState:
 
         if self.turnPhase == TurnPhase.EXCHANGE_CARDS:
             assert isinstance(action, Action.AddUnitsInExchangeCardsAction)
-            print(self.currentPlayer.cards)
             self.currentPlayer.cards.remove(action.cardsToExchange[0])
             self.currentPlayer.cards.remove(action.cardsToExchange[1])
             self.currentPlayer.cards.remove(action.cardsToExchange[2])

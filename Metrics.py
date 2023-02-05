@@ -12,8 +12,10 @@ class Metrics:
         self.listOfHeuristic.append(heuristics)
         if heuristics[0] > heuristics[1]:
             self.winner = 0
-        else:
+        elif heuristics[0] < heuristics[1]:
             self.winner = 1
+        else:
+            self.winner = -1
 
     def printMetrics(self):
         for i in range(len(self.listOfHeuristic)):

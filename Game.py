@@ -127,7 +127,7 @@ class Game:
                 break
 
         heuristicResult = self.heuristic.heuristicFromGameState(self.gameState)
-        metrics.endGame((heuristicResult[0][1], heuristicResult[1][1], totalP1, totalP2))
+        metrics.endGame((heuristicResult[0][1], heuristicResult[1][1], 0, 0))
 
         if self.showActions:
             print(heuristicResult[0][0].playerID.playerName + ": " + str(heuristicResult[0][1]))
@@ -170,8 +170,6 @@ class Game:
 
         if self.gameState.turnPhase == TurnPhase.EXCHANGE_CARDS:
             action = self.exchangeCardsPhase(player)
-            if not isinstance(action, Action.PassTurn):
-                print("post action2: ", action.cardsToExchange)
         elif self.gameState.turnPhase == TurnPhase.ADD_UNITS:
             action = self.addUnitsPhase(player)
         elif self.gameState.turnPhase == TurnPhase.ATTACK_ENEMY:
@@ -189,9 +187,6 @@ class Game:
 
         if action is None:
             action = Action.PassTurn()
-
-        if not isinstance(action, Action.PassTurn):
-            print("post action1: ", action.cardsToExchange)
 
         return action
 
@@ -225,6 +220,6 @@ if __name__ == "__main__":
     agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
     agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
 
-    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=False, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
 
     game.playtest().printMetrics()
