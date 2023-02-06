@@ -130,7 +130,7 @@ class Game:
         heuristicResult = self.heuristic.heuristicFromGameState(self.gameState)
 
         winner = None
-        if tieFlag or self.gameState.checkGoal(player) == False:
+        if tieFlag or self.gameState.checkGoal(self.gameState.currentPlayer) == False:
             winner = -1
         else:
             if heuristicResult[0][1] > heuristicResult[1][1]:

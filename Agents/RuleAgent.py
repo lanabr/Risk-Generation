@@ -212,7 +212,7 @@ class RuleAgent:
         action = Action.PassTurn()
         return action
 
-    def playMoveUnits(self, gameState):    # todo: mover para perto do continente que quer pegar ou pra beirada pra defender
+    def playMoveUnits(self, gameState):
         gameMap = gameState.map
 
         terrs = gameMap.firstGetAdjacencyFromFrontierForMoveUnits(self.playerID, self.movedUnitThisTurn)
