@@ -54,7 +54,7 @@ class ObjectiveCards:
 
         contTuples = random.sample(list(itertools.combinations(range(len(map.continents)), 2)), continentCards)
         terrPercentage = [round(random.uniform(0.6, 0.91), 2) for i in range(territoriesCards)]
-        troopsQuantity = random.randrange(1, 4)
+        troopsQuantity = random.randrange(2, 4)
 
         a, b = 0, 0
 

@@ -133,7 +133,6 @@ class Map:
 
         return returnList
 
-
     def getTerritoriesFromPlayerInFrontierWithEnemy(self, playerID):
         returnList = []
 

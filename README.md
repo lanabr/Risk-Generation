@@ -3,7 +3,8 @@
 TODO:
 
 Checar erros na jogabilidade  
-Testar cada possível variação  
 Fazer o agente mais inteligente (se sobrar tempo)  
-Fazer arquivo de síntese  
-Ver jogos com 1 turno só, se ta certo  
+Ver erros da criação de mapas
+
+Cálculo da fitness, quanto mais perto do preferido melhor, quanto menor o fitness melhor o jogo  
+Como fazer MapCount

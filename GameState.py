@@ -45,6 +45,9 @@ class GameState:
         self.continentHandler = ContinentHandler(self.map.continents, self.map.territories, self.map.continentsValue)
 
     def checkGoal(self, player):
+        if player.objective is None:
+            return True
+
         continentCheck, territoriesCheck, troopsCheck = False, False, False
 
         flag = 0
@@ -74,6 +77,8 @@ class GameState:
 
         if player.objective.continent == continentCheck and player.objective.territories == territoriesCheck and player.objective.troops == troopsCheck:
             return True
+
+        return False
 
     def checkIfGameOver(self):
         if self.parameters.goalBasedOn == "cards":

@@ -10,3 +10,6 @@ class Parameters:
         self.advantageAttack = advantageAttack                 # attack, defense      ataque = defesa usa 2 dados, defesa = defesa usa 3 dados
         self.initialTerritoriesMode = initialTerritoriesMode   # random, pick         escolha inicial dos territorios é aleatoria ou escolhida pelos jogadores
         self.troopsToNewTerritory = troopsToNewTerritory       # min, max             tropas a serem colocadas em um novo territorio
+
+        self.criteria = {}
+        self.fitness = 0

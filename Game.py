@@ -130,7 +130,7 @@ class Game:
         heuristicResult = self.heuristic.heuristicFromGameState(self.gameState)
 
         winner = None
-        if tieFlag or self.gameState.checkGoal(self.gameState.currentPlayer) == False:
+        if tieFlag or (self.gameState.checkGoal(self.gameState.listOfPlayers[0]) == False and self.gameState.checkGoal(self.gameState.listOfPlayers[1]) == False):
             winner = -1
         else:
             if heuristicResult[0][1] > heuristicResult[1][1]:
@@ -274,7 +274,6 @@ if __name__ == "__main__":
     game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 5, "attack", "random", "min"), listOfPlayers=[agent1, agent2])
     game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 5, "attack", "pick", "max"), listOfPlayers=[agent1, agent2])
     game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 5, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
-    
     game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 1, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
     game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 1, "defense", "random", "min"), listOfPlayers=[agent1, agent2])
     game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 1, "defense", "pick", "max"), listOfPlayers=[agent1, agent2])
@@ -317,6 +316,6 @@ if __name__ == "__main__":
     game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 5, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])    
     """
 
-    game = Game(showActions=False, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 3, "attack", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=False, parameters=Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 3, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
 
     game.playtest().printMetrics()
