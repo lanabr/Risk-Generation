@@ -36,7 +36,10 @@ class GameState:
         self.terrDeck = TerritoryCards(self.map)
         self.cardGiven = False
 
-        self.troopsPerCard = [2, 4, 6, 8, 10, 12, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 80, 85, 90, 95, 100]
+        self.troopsPerCard = [2, 4, 6, 8, 10, 12, 15]
+        for _ in range(0, 100):
+            self.troopsPerCard.append(self.troopsPerCard[-1] + 5)
+
         self.currentChange = 0
 
         self.continentHandler = ContinentHandler(self.map.continents, self.map.territories, self.map.continentsValue)
@@ -45,37 +48,39 @@ class GameState:
         continentCheck, territoriesCheck, troopsCheck = False, False, False
 
         flag = 0
-        if player.card.continent is True:
-            for continent in range(len(player.card.totalContinents)):
-                if player.card.totalContinents[continent] == 1:
+        if player.objective.continent is True:
+            for continent in range(len(player.objective.totalContinents)):
+                if player.objective.totalContinents[continent] == 1:
                     for terr in self.map.getTerritoriesFromContinent(str(continent)):
-                        if terr.__ownedByPlayer != player:
+                        if terr.ownedByPlayer != player.playerID:
                             flag = 1
                             break
             if flag == 0:
                 continentCheck = True
 
-        if player.card.territories is True:
-            if len(self.map.getTerritoriesFromPlayer(player)) >= math.ceil(player.card.territoriesPercentage * len(self.map.territories)):
+        if player.objective.territories is True:
+            if len(self.map.getTerritoriesFromPlayer(player.playerID)) >= math.ceil(player.objective.territoriesPercentage * len(self.map.territories)):
                 territoriesCheck = True
 
         flag = 0
-        if player.card.troops is True:
-            for terr in self.map.getTerritoriesFromPlayer(player):
-                if terr.numberOfTroops < player.card.troopsInTerritories:
+        if player.objective.troops is True:
+            for terr in self.map.getTerritoriesFromPlayer(player.playerID):
+                if terr.numberOfTroops < player.objective.troopsInTerritories:
                     flag = 1
                     break
 
             if flag == 0:
                 troopsCheck = True
 
-        if player.card.continent == continentCheck and player.card.territories == territoriesCheck and player.card.troops == troopsCheck:
+        if player.objective.continent == continentCheck and player.objective.territories == territoriesCheck and player.objective.troops == troopsCheck:
             return True
 
     def checkIfGameOver(self):
         if self.parameters.goalBasedOn == "cards":
             for player in self.listOfPlayers:
                 if self.checkGoal(player):
+                    self.gamePhase = GamePhase.GAME_OVER
+                elif len(self.map.getTerritoriesFromPlayer(player.playerID)) == len(self.map.territories):
                     self.gamePhase = GamePhase.GAME_OVER
         elif self.parameters.goalBasedOn == "all":
             for player in self.listOfPlayers:

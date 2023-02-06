@@ -45,6 +45,7 @@ class RuleAgent:
     def captureNeutralTerritoryFromContinent(self, gameMap):
         territories = gameMap.neutralTerritoriesFromContinent(self.continentBeingCaptured)
         territoryChosen = random.choice(territories)
+
         if len(territories) <= 1:
             self.currentlyCapturingContinent = False
 
@@ -53,6 +54,12 @@ class RuleAgent:
     def searchBestContinent(self, gameState):
         currentContinent = None
         currentYield = 0
+
+        if gameState.parameters.goalBasedOn == "cards":
+            if self.objective.continent:
+                for continent in range(len(self.objective.totalContinents)):
+                    if self.objective.totalContinents[continent] == 1 and str(continent) != self.continentBeingCaptured and len(gameState.map.neutralTerritoriesFromContinent(str(continent))) > 0:
+                        return str(continent)
 
         for continent in gameState.map.continents:
             emptyContinent = True
@@ -74,6 +81,9 @@ class RuleAgent:
         gameMap = gameState.map
 
         allTerr = gameMap.getTerritoriesFromPlayerInFrontierWithEnemy(self.playerID)
+
+        if len(allTerr) == 0:
+            allTerr = gameMap.getTerritoriesFromPlayer(self.playerID)
 
         lowestTroop = 10000
         lowestTerr = None
@@ -176,7 +186,18 @@ class RuleAgent:
 
         for terr in allTerr:
             if terr.numberOfTroops >= 3:
-                enemyTerritories = gameMap.getEnemyFrontiersForTerritory(terr)
+                enemyTerritories = None
+                enemyTerritories1 = gameMap.getEnemyFrontiersForTerritory(terr)
+                enemyTerritories2 = []
+
+                if gameState.parameters.goalBasedOn == "cards" and self.objective.continent is True:
+                    for continent in self.objective.totalContinents:
+                        enemyTerritories2.extend(gameMap.getTerritoriesFromContinent(str(continent)))
+
+                    enemyTerritories = [continent for continent in enemyTerritories1 if continent in enemyTerritories2]
+
+                if not enemyTerritories:
+                    enemyTerritories = gameMap.getEnemyFrontiersForTerritory(terr)
 
                 lowestEnemyTerrUnits = 10000
                 lowestEnemyTerr = None
@@ -191,7 +212,7 @@ class RuleAgent:
         action = Action.PassTurn()
         return action
 
-    def playMoveUnits(self, gameState):
+    def playMoveUnits(self, gameState):    # todo: mover para perto do continente que quer pegar ou pra beirada pra defender
         gameMap = gameState.map
 
         terrs = gameMap.firstGetAdjacencyFromFrontierForMoveUnits(self.playerID, self.movedUnitThisTurn)

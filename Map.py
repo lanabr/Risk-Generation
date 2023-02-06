@@ -124,6 +124,16 @@ class Map:
 
         return returnList
 
+    def getTerritoriesFromEnemy(self, playerID):
+        returnList = []
+
+        for territory in self._territories:
+            if territory.ownedByPlayer != playerID:
+                returnList.append(territory)
+
+        return returnList
+
+
     def getTerritoriesFromPlayerInFrontierWithEnemy(self, playerID):
         returnList = []
 

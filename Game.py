@@ -60,10 +60,11 @@ class Game:
 
         return moves
 
-    def playtest(self, maxNumberOfTurns=300, maxNumberOfSeconds=60):
+    def playtest(self, maxNumberOfTurns=300, maxNumberOfSeconds=20):
         metrics = Metrics()
 
         lastTurn = 0
+        tieFlag = 0
 
         moveChoicesP1Attack = 0
         moveChoicesP2Attack = 0
@@ -77,12 +78,11 @@ class Game:
         beginTime = time()
 
         if self.parameters.goalBasedOn == "cards":
-            objectiveDeck = ObjectiveCards(self.parameters.map)
+            objectiveDeck = ObjectiveCards(self.gameState.map)
 
-            cardsToPlayers = random.choices(objectiveDeck.deck, k=2)
-
-            self.listOfPlayers[0].objective = cardsToPlayers[0]
-            self.listOfPlayers[1].objective = cardsToPlayers[1]
+            self.listOfPlayers[0].objective = random.choice(objectiveDeck.deck)
+            objectiveDeck.deck.remove(self.listOfPlayers[0].objective)
+            self.listOfPlayers[1].objective = random.choice(objectiveDeck.deck)
 
         while self.gameState.gamePhase != GamePhase.GAME_OVER:
             if self.showActions:
@@ -124,10 +124,21 @@ class Game:
                     print()
 
             if self.gameState.turnCount > maxNumberOfTurns or (time() - beginTime) > maxNumberOfSeconds:
+                tieFlag = 1
                 break
 
         heuristicResult = self.heuristic.heuristicFromGameState(self.gameState)
-        metrics.endGame((heuristicResult[0][1], heuristicResult[1][1], 0, 0))
+
+        winner = None
+        if tieFlag or self.gameState.checkGoal(player) == False:
+            winner = -1
+        else:
+            if heuristicResult[0][1] > heuristicResult[1][1]:
+                winner = 0
+            else:
+                winner = 1
+
+        metrics.endGame((heuristicResult[0][1], heuristicResult[1][1], 0, 0), winner)
 
         if self.showActions:
             print(heuristicResult[0][0].playerID.playerName + ": " + str(heuristicResult[0][1]))
@@ -220,6 +231,92 @@ if __name__ == "__main__":
     agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
     agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
 
+    """
+    To test:
+    
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 1, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 1, "defense", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 1, "defense", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 1, "defense", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 1, "attack", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 1, "attack", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 1, "attack", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 1, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 2, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 2, "defense", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 2, "defense", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 2, "defense", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 2, "attack", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 2, "attack", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 2, "attack", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 2, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
     game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "defense", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "defense", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "defense", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "attack", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "attack", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "attack", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 3, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 4, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 4, "defense", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 4, "defense", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 4, "defense", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 4, "attack", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 4, "attack", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 4, "attack", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 4, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 5, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 5, "defense", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 5, "defense", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 5, "defense", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 5, "attack", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 5, "attack", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 5, "attack", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "all", 5, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
+    
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 1, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 1, "defense", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 1, "defense", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 1, "defense", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 1, "attack", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 1, "attack", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 1, "attack", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 1, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 2, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 2, "defense", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 2, "defense", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 2, "defense", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards"", 2, "attack", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 2, "attack", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 2, "attack", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 2, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 3, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 3, "defense", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 3, "defense", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 3, "defense", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 3, "attack", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 3, "attack", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 3, "attack", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 3, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 4, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 4, "defense", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 4, "defense", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 4, "defense", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 4, "attack", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 4, "attack", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 4, "attack", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 4, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 5, "defense", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 5, "defense", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 5, "defense", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 5, "defense", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 5, "attack", "random", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 5, "attack", "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 5, "attack", "pick", "max"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 5, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])    
+    """
+
+    game = Game(showActions=False, parameters=Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map.json", "cards", 3, "attack", "pick", "max"), listOfPlayers=[agent1, agent2])
 
     game.playtest().printMetrics()

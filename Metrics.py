@@ -8,14 +8,9 @@ class Metrics:
         self.listOfHeuristic.append(heuristics)
         self.turnCount += 1
 
-    def endGame(self, heuristics):
+    def endGame(self, heuristics, winner):
         self.listOfHeuristic.append(heuristics)
-        if heuristics[0] > heuristics[1]:
-            self.winner = 0
-        elif heuristics[0] < heuristics[1]:
-            self.winner = 1
-        else:
-            self.winner = -1
+        self.winner = winner
 
     def printMetrics(self):
         for i in range(len(self.listOfHeuristic)):
