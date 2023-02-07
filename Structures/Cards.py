@@ -10,7 +10,7 @@ class TerritoryCards:
 
         for terr in range(0, len(map.territories), 3):
             self.deck.append(CardTerritory(map.territories[terr], "infantry"))
-            if map.territories[terr+1]:
+            if (terr+1) <= len(map.territories) - 1:
                 self.deck.append(CardTerritory(map.territories[terr+1], "cavalry"))
-            if map.territories[terr+2]:
+            if (terr+2) <= len(map.territories) - 1:
                 self.deck.append(CardTerritory(map.territories[terr+2], "artillery"))

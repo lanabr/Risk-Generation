@@ -53,7 +53,6 @@ class Map:
         }
 
     def loadMap(self, mapPath):
-        print(mapPath)
         with open(mapPath, "r") as fp:
             jsonDump = json.load(fp)
 
@@ -61,8 +60,6 @@ class Map:
         self._continents = jsonDump["continents"]
         self._continentsValue = jsonDump["continentsValue"]
         self.__loadTerritories(jsonDump["territories"], self._connections)
-
-        print(self._connections)
 
         self.__loadEdgesOnMap()
 

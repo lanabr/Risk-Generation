@@ -24,32 +24,26 @@ def calculateCriteria(gameParameters):
     gameParameters.criteria["completion"] = criteria.calculateCompletion()
     gameParameters.criteria["killerMoves"] = criteria.calculateKillerMoves()
 
-    gameParameters.weights["advantage"] = 1 / 7
-    gameParameters.weights["duration"] = 1 / 7
-    gameParameters.weights["drama"] = 1 / 7
-    gameParameters.weights["leadChange"] = 1 / 7
-    gameParameters.weights["branchingFactor"] = 1 / 7
-    gameParameters.weights["completion"] = 1 / 7
-    gameParameters.weights["killerMoves"] = 1 / 7
-
     return gameParameters.criteria
 
 
 def calculateFitness(gameParameters):
     fitness = 0
+    ideal = {"advantage": 0, "duration": 0, "drama": 0.5, "leadChange": 0.5, "branchingFactor": 0.5, "completion": 1, "killerMoves": 0.5}
+
     for key in gameParameters.criteria:
-        fitness += gameParameters.criteria[key] * gameParameters.weights[key]
+        fitness += abs(gameParameters.criteria[key] - ideal[key])
+
     return fitness
 
 
-def selectionTournament(population):
+def selectionTournament(population, tournamentSize):
     # tournament selection
-    tournamentSize = 5
     tournament = []
     for i in range(tournamentSize):
         tournament.append(population[random.randint(0, len(population) - 1)])
 
-    tournament.sort(key=lambda x: x.fitness, reverse=True)
+    tournament.sort(key=lambda x: x.fitness)
 
     return [tournament[0], tournament[1]]
 
@@ -175,20 +169,20 @@ def getConnectionsFromTerritories(map, territories):
     return connections
 
 
-def crossover(parents):
+def crossover(parents, numOffspring):
     # scattered crossover
+    global MAPCOUNT
+
     offspring = []
-    offspringSize = 3
-    for i in range(offspringSize):
+    for i in range(numOffspring):
         newMapPath = mapCrossover(parents[0].mapPath, parents[1].mapPath)
         MAPCOUNT += 1
         newTroopsWonBeginTurn = random.choice([parents[0].troopsWonBeginTurn, parents[1].troopsWonBeginTurn])
-        newAdvantageAttack = random.choice([parents[0].newAdvantageAttack, parents[1].newAdvantageAttack])
-        newInitialTerritoriesMode = random.choice(
-            [parents[0].newInitialTerritoriesMode, parents[1].newInitialTerritoriesMode])
+        newAdvantageAttack = random.choice([parents[0].advantageAttack, parents[1].advantageAttack])
+        newInitialTerritoriesMode = random.choice([parents[0].initialTerritoriesMode, parents[1].initialTerritoriesMode])
+        newTroopsToNewTerritory = random.choice([parents[0].troopsToNewTerritory, parents[1].troopsToNewTerritory])
 
-        offspring.append(Parameters(newMapPath, newTroopsWonBeginTurn,
-                                    newAdvantageAttack, newInitialTerritoriesMode, newTroopsWonBeginTurn))
+        offspring.append(Parameters(newMapPath, newTroopsWonBeginTurn, newAdvantageAttack, newInitialTerritoriesMode, newTroopsToNewTerritory))
 
     return offspring
 
@@ -258,7 +252,7 @@ def mutation(offspring):
     mutation_rate = 0.7
 
     for child in offspring:
-        child.mapPath = mapMutation(child.mapPath, mutation_rate)
+        #child.mapPath = mapMutation(child.mapPath, mutation_rate)
 
         if random.random() > mutation_rate:
             possible = [1, 2, 3, 4, 5]
@@ -284,6 +278,8 @@ def mutation(offspring):
                 child.troopsToNewTerritory = 'max'
             else:
                 child.troopsToNewTerritory = 'min'
+
+    return offspring
 
 
 def exportMap(territories, connections, continents, continentsValue):

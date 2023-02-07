@@ -2,12 +2,14 @@
 
 TODO:
 
-Checar erros na jogabilidade  
-Fazer o agente mais inteligente (se sobrar tempo)  
-Ver erros da criação de mapas  
-Checar erros da síntese
+Checar erros na jogabilidade   
+Checar erros da síntese  
+Ver um jeito de criar população de forma parametrizada
+Rever o calculo do branching factor
+Passar os outros mapas para o formato do mapa do Risk  
+https://boardgamegeek.com/image/794519/risk-halo-wars-collectors-edition  
+https://www.ebay.com/itm/324277593206  
 
-Cálculo da fitness, quanto mais perto do preferido melhor, quanto menor o fitness melhor o jogo
-Tirar cartas de objetivo 
-Se conquistou mapa inteiro ganhou  
-mudar fitness  
+SE SOBRAR TEMPO:  
+Fazer o agente mais inteligente  
+Mudar o fitness pra um ranking e vai sempre atualizando  

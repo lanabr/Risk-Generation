@@ -3,9 +3,10 @@ from Agents.RuleAgent import RuleAgent
 from Structures.PlayerID import PlayerID
 from Structures.ValidPlayerColors import ValidPlayerColors
 from tqdm import tqdm
+from Parameters import Parameters
 
 
-def playtestNtimes(gameParameters, numberOfTimes=300, exportFile=True, maxTurnCount=300, maxTime=20):
+def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCount=300, maxTime=20):
     for _ in tqdm(range(numberOfTimes)):
         agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
         agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))

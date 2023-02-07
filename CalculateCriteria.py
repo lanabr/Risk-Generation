@@ -18,30 +18,11 @@ class CalculateCriteria:
         return abs(allZero - (len(self.allWinners) / 2)) / (len(self.allWinners) / 2)
 
     def calculateDuration(self, preferredLength=14):
-        newDF = pd.DataFrame()
         cumulativeSum = 0
-        allValues = []
+
         for i in self.allTurnCounts:  # somatório de todos os jogos
             cumulativeSum += (abs(preferredLength - i)) / preferredLength  # duração preferida - duração do jogo g / preferida
-            allValues.append(i)
 
-        newWinner = self.allWinners
-
-        loc = list(locate(newWinner, lambda x: x == 1))
-        for i in loc:
-            allValues[i] += random.randint(0, 1)
-
-        inc = np.random.normal(loc=2, scale=1.0, size=len(allValues))
-        for i in range(len(allValues)):
-            allValues[i] += inc[i]
-
-        newWinner = ["First Player" if x == 0 else x for x in newWinner]
-        newWinner = ["Second Player" if x == 1 else x for x in newWinner]
-        newDF["Winner"] = newWinner[:200]
-        newDF["Game Duration (Turns)"] = allValues[:200]
-        # seaborn.boxplot(data = newDF, y = "Game Duration (Turns)")
-        seaborn.boxplot(data=newDF, x="Winner", y="Game Duration (Turns)")
-        # plt.show()
         return cumulativeSum / len(self.allTurnCounts)   # divide o valor do somatório pela quantidade de partidas
 
     def calculateDrama(self):
@@ -89,35 +70,24 @@ class CalculateCriteria:
 
         return cumulativeSum / len(self.allMetrics)
 
-    def calculateBranchingFactor(self): # media da quantidade de movimentos por turno, 0 é baixo, 1 é alto, trocas no self.allMetrics[game][turn][0] o 0 por 2 e o 1 por 3
-        totalBranchingFactorP1 = []
-        totalBranchingFactorP2 = []
+    def calculateBranchingFactor(self): # media da quantidade de movimentos por turno, 0 é baixo, 1 é alto
+        branchingFactorP1 = 0
+        branchingFactorP2 = 0
 
-        partialBranchingFactorP1 = []
-        partialBranchingFactorP2 = []
+        for game in range(len(self.allTurnCounts)):
+            cumulativeSum = [0, 0]
 
-        for percentage in np.arange(0.1, 1.1, 0.1):
-            for game in range(len(self.allTurnCounts)):
-                cumulativeSum = [0, 0]
-                partialBranchingFactorP1 = []
-                partialBranchingFactorP2 = []
+            for turn in range(round((self.allTurnCounts[game] - 1))):
+                cumulativeSum[0] += self.allMetrics[game][turn][2]
+                cumulativeSum[1] += self.allMetrics[game][turn][3]
 
-                for turn in range(round((self.allTurnCounts[game] - 1) * percentage)):
-                    cumulativeSum[0] += self.allMetrics[game][turn][0]
-                    cumulativeSum[1] += self.allMetrics[game][turn][1]
+            branchingFactorP1 += math.log10((cumulativeSum[0] / self.allTurnCounts[game])) / 2
+            branchingFactorP2 += math.log10((cumulativeSum[1] / self.allTurnCounts[game])) / 2
 
-                partialBranchingFactorP1.append(math.log10((cumulativeSum[0] / round(self.allTurnCounts[game] * percentage)) + 1))
-                partialBranchingFactorP2.append(math.log10((cumulativeSum[1] / round(self.allTurnCounts[game] * percentage)) + 1))
+        resultP1 = branchingFactorP1 / len(self.allTurnCounts)
+        resultP2 = branchingFactorP2 / len(self.allTurnCounts)
 
-            totalBranchingFactorP1.append(sum(partialBranchingFactorP1) / len(self.allTurnCounts))
-            totalBranchingFactorP2.append(sum(partialBranchingFactorP2) / len(self.allTurnCounts))
-
-        result = []
-
-        for i in range(len(totalBranchingFactorP1)):
-            result.append((totalBranchingFactorP1[i] + totalBranchingFactorP2[i]) / 2)
-
-        return result
+        return (resultP1 + resultP2) / 2
 
     def calculateCompletion(self):
         allWins = self.allWinners.count(0) + self.allWinners.count(1)
@@ -161,15 +131,17 @@ class CalculateCriteria:
                 i += 3
         return
 
-'''
-cc = CalculateCriteria()
-cc.importMetricsFromFile("/home/lana/Downloads/Risk-Content-Generation-master/metrics/originalMap.txt")
 
+cc = CalculateCriteria()
+cc.importMetricsFromFile("/home/lana/PycharmProjects/Risk-Generation/metrics/game1-1-attack-pick-min.txt")
+
+print(cc.calculateBranchingFactor())
+'''
 print(cc.calculateAdvantage())
 print(cc.calculateDuration())
 print(cc.calculateDrama())
 print(cc.calculateLeadChange())
-print(cc.calculateBranchingFactor())
+
 print(cc.calculateCompletion())
 print(cc.calculateKillerMoves())
 '''
