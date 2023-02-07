@@ -5,17 +5,12 @@ import random
 class RuleAgent:
     def __init__(self, playerID):
         self.playerID = playerID
-        self.objective = None
         self.cards = []
 
         self.movedUnitThisTurn = []
 
         self.currentlyCapturingContinent = False
         self.continentBeingCaptured = None
-
-        # se for objetivo de continente, pega territorio aleatorio do continente, se nao, estrategia anterior
-        # atacar pra conquistar continente da carta, se não estrategia anterior
-        # se for de tropas, colocar unidades onde precisa de tropa, mover as unidades também
 
     def playAllocation(self, gameState):
         gameMap = gameState.map
@@ -54,12 +49,6 @@ class RuleAgent:
     def searchBestContinent(self, gameState):
         currentContinent = None
         currentYield = 0
-
-        if gameState.parameters.goalBasedOn == "cards":
-            if self.objective.continent:
-                for continent in range(len(self.objective.totalContinents)):
-                    if self.objective.totalContinents[continent] == 1 and str(continent) != self.continentBeingCaptured and len(gameState.map.neutralTerritoriesFromContinent(str(continent))) > 0:
-                        return str(continent)
 
         for continent in gameState.map.continents:
             emptyContinent = True
@@ -186,18 +175,7 @@ class RuleAgent:
 
         for terr in allTerr:
             if terr.numberOfTroops >= 3:
-                enemyTerritories = None
-                enemyTerritories1 = gameMap.getEnemyFrontiersForTerritory(terr)
-                enemyTerritories2 = []
-
-                if gameState.parameters.goalBasedOn == "cards" and self.objective.continent is True:
-                    for continent in self.objective.totalContinents:
-                        enemyTerritories2.extend(gameMap.getTerritoriesFromContinent(str(continent)))
-
-                    enemyTerritories = [continent for continent in enemyTerritories1 if continent in enemyTerritories2]
-
-                if not enemyTerritories:
-                    enemyTerritories = gameMap.getEnemyFrontiersForTerritory(terr)
+                enemyTerritories = gameMap.getEnemyFrontiersForTerritory(terr)
 
                 lowestEnemyTerrUnits = 10000
                 lowestEnemyTerr = None

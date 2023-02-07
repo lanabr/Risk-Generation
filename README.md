@@ -8,3 +8,6 @@ Ver erros da criação de mapas
 Checar erros da síntese
 
 Cálculo da fitness, quanto mais perto do preferido melhor, quanto menor o fitness melhor o jogo
+Tirar cartas de objetivo 
+Se conquistou mapa inteiro ganhou  
+mudar fitness  

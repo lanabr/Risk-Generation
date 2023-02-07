@@ -10,7 +10,7 @@ MAPCOUNT = 5
 
 
 def calculateCriteria(gameParameters):
-    metricsFile = "metrics/game" + gameParameters.mapPath[-6] + "-" + gameParameters.goalBasedOn + "-" \
+    metricsFile = "metrics/game" + gameParameters.mapPath[-6] + "-" \
                   + str(gameParameters.troopsWonBeginTurn) + "-" + gameParameters.advantageAttack + "-" \
                   + gameParameters.initialTerritoriesMode + "-" + gameParameters.troopsToNewTerritory + ".txt"
 
@@ -182,13 +182,12 @@ def crossover(parents):
     for i in range(offspringSize):
         newMapPath = mapCrossover(parents[0].mapPath, parents[1].mapPath)
         MAPCOUNT += 1
-        newGoalBasedOn = random.choice([parents[0].goalBasedOn, parents[1].goalBasedOn])
         newTroopsWonBeginTurn = random.choice([parents[0].troopsWonBeginTurn, parents[1].troopsWonBeginTurn])
         newAdvantageAttack = random.choice([parents[0].newAdvantageAttack, parents[1].newAdvantageAttack])
         newInitialTerritoriesMode = random.choice(
             [parents[0].newInitialTerritoriesMode, parents[1].newInitialTerritoriesMode])
 
-        offspring.append(Parameters(newMapPath, newGoalBasedOn, newTroopsWonBeginTurn,
+        offspring.append(Parameters(newMapPath, newTroopsWonBeginTurn,
                                     newAdvantageAttack, newInitialTerritoriesMode, newTroopsWonBeginTurn))
 
     return offspring
@@ -260,12 +259,6 @@ def mutation(offspring):
 
     for child in offspring:
         child.mapPath = mapMutation(child.mapPath, mutation_rate)
-
-        if random.random() > mutation_rate:
-            if child.goalBasedOn == 'all':
-                child.goalBasedOn = 'cards'
-            else:
-                child.goalBasedOn = 'all'
 
         if random.random() > mutation_rate:
             possible = [1, 2, 3, 4, 5]

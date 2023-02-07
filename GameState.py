@@ -44,53 +44,10 @@ class GameState:
 
         self.continentHandler = ContinentHandler(self.map.continents, self.map.territories, self.map.continentsValue)
 
-    def checkGoal(self, player):
-        if player.objective is None:
-            return True
-
-        continentCheck, territoriesCheck, troopsCheck = False, False, False
-
-        flag = 0
-        if player.objective.continent is True:
-            for continent in range(len(player.objective.totalContinents)):
-                if player.objective.totalContinents[continent] == 1:
-                    for terr in self.map.getTerritoriesFromContinent(str(continent)):
-                        if terr.ownedByPlayer != player.playerID:
-                            flag = 1
-                            break
-            if flag == 0:
-                continentCheck = True
-
-        if player.objective.territories is True:
-            if len(self.map.getTerritoriesFromPlayer(player.playerID)) >= math.ceil(player.objective.territoriesPercentage * len(self.map.territories)):
-                territoriesCheck = True
-
-        flag = 0
-        if player.objective.troops is True:
-            for terr in self.map.getTerritoriesFromPlayer(player.playerID):
-                if terr.numberOfTroops < player.objective.troopsInTerritories:
-                    flag = 1
-                    break
-
-            if flag == 0:
-                troopsCheck = True
-
-        if player.objective.continent == continentCheck and player.objective.territories == territoriesCheck and player.objective.troops == troopsCheck:
-            return True
-
-        return False
-
     def checkIfGameOver(self):
-        if self.parameters.goalBasedOn == "cards":
-            for player in self.listOfPlayers:
-                if self.checkGoal(player):
-                    self.gamePhase = GamePhase.GAME_OVER
-                elif len(self.map.getTerritoriesFromPlayer(player.playerID)) == len(self.map.territories):
-                    self.gamePhase = GamePhase.GAME_OVER
-        elif self.parameters.goalBasedOn == "all":
-            for player in self.listOfPlayers:
-                if len(self.map.getTerritoriesFromPlayer(player.playerID)) == len(self.map.territories):
-                    self.gamePhase = GamePhase.GAME_OVER
+        for player in self.listOfPlayers:
+            if len(self.map.getTerritoriesFromPlayer(player.playerID)) == len(self.map.territories):
+                self.gamePhase = GamePhase.GAME_OVER
 
     def passTurn(self):
         if self.gamePhase == GamePhase.CONFLICT_PHASE:
