@@ -40,7 +40,7 @@ class Synthesis:
         self.population.append(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map1.json", 4, "attack", "pick", "min"))
 
         for gameParam in self.population:
-            playtestNtimes(gameParameters=gameParam, numberOfTimes=100)
+            #playtestNtimes(gameParameters=gameParam, numberOfTimes=100)
             gameParam.criteria = op.calculateCriteria(gameParam)
 
     def calculateFitness(self):
@@ -78,7 +78,7 @@ class Synthesis:
         print("Final population:")
         for gameParam, i in zip(self.population, range(len(self.population))):
             print("Child", i)
-            print("Map in", gameParam.map, "with the following parameters:")
+            print("Map in", gameParam.mapPath, "with the following parameters:")
             print("troopsWonBeginTurn: ", gameParam.troopsWonBeginTurn)
             print("advantageAttack: ", gameParam.advantageAttack)
             print("initialTerritoriesMode: ", gameParam.initialTerritoriesMode)

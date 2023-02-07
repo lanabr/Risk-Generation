@@ -200,16 +200,16 @@ def mapMutation(mapPath, mutation_rate):
         terr1 = random.randint(0, len(connections) - 1)
         terr2 = random.randint(0, len(connections) - 1)
 
-        if terr1 != terr2 and terr2 not in connections[terr1]:
-            connections[terr1].append(terr2)
-            connections[terr2].append(terr1)
+        if terr1 != terr2 and terr2 not in connections[str(terr1)]:
+            connections[str(terr1)].append(terr2)
+            connections[str(terr2)].append(terr1)
 
     if random.random() > mutation_rate:   # Remove connection
         terr1 = random.randint(0, len(connections) - 1)
-        terr2 = random.choice(connections[terr1])
+        terr2 = random.choice(connections[str(terr1)])
 
-        connections[terr1].remove(terr2)
-        connections[terr2].remove(terr1)
+        connections[str(terr1)].remove(terr2)
+        connections[str(terr2)].remove(terr1)
 
     if random.random() > mutation_rate:    # "Steal" a territory from a continent
         if len(continents) > 1:
@@ -217,7 +217,7 @@ def mapMutation(mapPath, mutation_rate):
             stoleTerr = False
             while stoleTerr is False:
                 terr1 = random.choice(cont)
-                possibleTerr = random.choice(connections[terr1])
+                possibleTerr = random.choice(connections[str(terr1)])
                 if possibleTerr not in cont:
                     stoleTerr = True
                     for c in continents:
@@ -229,8 +229,8 @@ def mapMutation(mapPath, mutation_rate):
             cont1 = random.randint(0, len(continentsValue) - 1)
             cont2 = random.randint(0, len(continentsValue) - 1)
 
-            temp = continentsValue[cont1]
-            continentsValue[cont1] = continentsValue[cont2]
+            temp = continentsValue[str(cont1)]
+            continentsValue[cont1] = continentsValue[str(cont2)]
             continentsValue[cont2] = temp
 
     if random.random() > mutation_rate:    # Modify the value of a continent
@@ -238,9 +238,9 @@ def mapMutation(mapPath, mutation_rate):
 
         decide = random.choice([True, False])
         if decide:
-            continentsValue[cont] += 1
+            continentsValue[str(cont)] += 1
         else:
-            continentsValue[cont] = max(1, continentsValue[cont])
+            continentsValue[str(cont)] = max(1, continentsValue[str(cont)])
 
     mapPath = exportMap(territories, connections, continents, continentsValue)
 
@@ -252,7 +252,7 @@ def mutation(offspring):
     mutation_rate = 0.7
 
     for child in offspring:
-        #child.mapPath = mapMutation(child.mapPath, mutation_rate)
+        child.mapPath = mapMutation(child.mapPath, mutation_rate)
 
         if random.random() > mutation_rate:
             possible = [1, 2, 3, 4, 5]

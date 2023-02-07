@@ -131,12 +131,12 @@ class CalculateCriteria:
                 i += 3
         return
 
-
+'''
 cc = CalculateCriteria()
 cc.importMetricsFromFile("/home/lana/PycharmProjects/Risk-Generation/metrics/game1-1-attack-pick-min.txt")
 
 print(cc.calculateBranchingFactor())
-'''
+
 print(cc.calculateAdvantage())
 print(cc.calculateDuration())
 print(cc.calculateDrama())
