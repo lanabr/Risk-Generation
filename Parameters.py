@@ -12,4 +12,5 @@ class Parameters:
         self.troopsToNewTerritory = troopsToNewTerritory       # min, max             tropas a serem colocadas em um novo territorio
 
         self.criteria = {}
+        self.weights = {}
         self.fitness = 0

@@ -4,8 +4,9 @@ import random
 from time import time
 from Map import Map
 import json
+import os
 
-mapCount = 5
+MAPCOUNT = 5
 
 
 def calculateCriteria(gameParameters):
@@ -23,13 +24,13 @@ def calculateCriteria(gameParameters):
     gameParameters.criteria["completion"] = criteria.calculateCompletion()
     gameParameters.criteria["killerMoves"] = criteria.calculateKillerMoves()
 
-    gameParameters.wheights["advantage"] = 1 / 7
-    gameParameters.wheights["duration"] = 1 / 7
-    gameParameters.wheights["drama"] = 1 / 7
-    gameParameters.wheights["leadChange"] = 1 / 7
-    gameParameters.wheights["branchingFactor"] = 1 / 7
-    gameParameters.wheights["completion"] = 1 / 7
-    gameParameters.wheights["killerMoves"] = 1 / 7
+    gameParameters.weights["advantage"] = 1 / 7
+    gameParameters.weights["duration"] = 1 / 7
+    gameParameters.weights["drama"] = 1 / 7
+    gameParameters.weights["leadChange"] = 1 / 7
+    gameParameters.weights["branchingFactor"] = 1 / 7
+    gameParameters.weights["completion"] = 1 / 7
+    gameParameters.weights["killerMoves"] = 1 / 7
 
     return gameParameters.criteria
 
@@ -180,7 +181,7 @@ def crossover(parents):
     offspringSize = 3
     for i in range(offspringSize):
         newMapPath = mapCrossover(parents[0].mapPath, parents[1].mapPath)
-        mapCount += 1
+        MAPCOUNT += 1
         newGoalBasedOn = random.choice([parents[0].goalBasedOn, parents[1].goalBasedOn])
         newTroopsWonBeginTurn = random.choice([parents[0].troopsWonBeginTurn, parents[1].troopsWonBeginTurn])
         newAdvantageAttack = random.choice([parents[0].newAdvantageAttack, parents[1].newAdvantageAttack])
@@ -293,7 +294,9 @@ def mutation(offspring):
 
 
 def exportMap(territories, connections, continents, continentsValue):
-    fileName = "parameters/map" + str(mapCount) + ".json"
+    fileName = "parameters/map" + str(MAPCOUNT) + ".json"
+    if os.path.exists(fileName):
+        os.remove(fileName)
 
     exportDict = {"territories": territories}  # type:ignore
 

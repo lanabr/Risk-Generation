@@ -24,16 +24,16 @@ class Synthesis:
             self.updatePopulation(offspring)
 
     def createPopulation(self):
-        self.population.append(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map1.json", "all", 2, "attack", "random", "min"))
-        self.population.append(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map2.json", "cards", 3, "defense", "random", "min"))
-        self.population.append(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map3.json", "all", 1, "attack", "pick", "max"))
-        self.population.append(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map4.json", "cards", 4, "defense", "pick", "max"))
-        self.population.append(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map5.json", "cards", 5, "attack", "pick", "min"))
-        self.population.append(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map1.json", "cards", 1, "defense", "pick", "max"))
-        self.population.append(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map2.json", "all", 2, "attack", "random", "min"))
-        self.population.append(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map3.json", "cards", 3, "defense", "random", "max"))
-        self.population.append(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map4.json", "all", 5, "attack", "pick", "min"))
-        self.population.append(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map5.json", "cards", 5, "attack", "pick", "max"))
+        self.population.append(Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map1.json", "all", 2, "attack", "random", "min"))
+        self.population.append(Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map2.json", "cards", 3, "defense", "random", "min"))
+        self.population.append(Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map3.json", "all", 1, "attack", "pick", "max"))
+        self.population.append(Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map4.json", "cards", 4, "defense", "pick", "max"))
+        self.population.append(Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map5.json", "cards", 5, "attack", "pick", "min"))
+        self.population.append(Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map1.json", "cards", 1, "defense", "pick", "max"))
+        self.population.append(Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map2.json", "all", 2, "attack", "random", "min"))
+        self.population.append(Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map3.json", "cards", 3, "defense", "random", "max"))
+        self.population.append(Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map4.json", "all", 5, "attack", "pick", "min"))
+        self.population.append(Parameters("C:/Users/LanaR/PycharmProjects/Risk-Generation/parameters/map5.json", "cards", 5, "attack", "pick", "max"))
 
         for gameParam in self.population:
             playtestNtimes(gameParameters=gameParam, numberOfTimes=100)
@@ -69,3 +69,8 @@ class Synthesis:
 
     def updatePopulation(self, offspring):
         self.population.extend(offspring)
+
+
+if __name__ == "__main__":
+    s = Synthesis()
+    s.gameGenerator()
