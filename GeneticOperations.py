@@ -6,7 +6,7 @@ from Map import Map
 import json
 import os
 
-MAPCOUNT = 5
+MAPCOUNT = 6
 
 
 def calculateCriteria(gameParameters):
