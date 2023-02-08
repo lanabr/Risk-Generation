@@ -59,7 +59,7 @@ class Game:
 
         return moves
 
-    def playtest(self, maxNumberOfTurns=300, maxNumberOfSeconds=20):
+    def playtest(self, maxNumberOfTurns=300, maxNumberOfSeconds=60):
         metrics = Metrics()
 
         lastTurn = 0
@@ -219,10 +219,12 @@ class Game:
         return action
 
 
+'''
 if __name__ == "__main__":
     agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
     agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
 
-    game = Game(showActions=False, parameters=Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map2.json", 3, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map5.json", 3, "attack", "random", "min"), listOfPlayers=[agent1, agent2])
 
     game.playtest().printMetrics()
+'''

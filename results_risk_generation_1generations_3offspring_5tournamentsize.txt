@@ -1,0 +1,81 @@
+Final population:
+Child 0
+Map in /home/lana/PycharmProjects/Risk-Generation/parameters/map8.json with the following parameters:
+troopsWonBeginTurn: 3
+advantageAttack: defense
+initialTerritoriesMode: pick
+troopsToNewTerritory: min
+Fitness: 2.429223855071439
+_________________________________________________________________________________________
+Child 1
+Map in /home/lana/PycharmProjects/Risk-Generation/parameters/map3.json with the following parameters:
+troopsWonBeginTurn: 1
+advantageAttack: attack
+initialTerritoriesMode: pick
+troopsToNewTerritory: min
+Fitness: 3.005059523809524
+_________________________________________________________________________________________
+Child 2
+Map in /home/lana/PycharmProjects/Risk-Generation/parameters/map1.json with the following parameters:
+troopsWonBeginTurn: 2
+advantageAttack: attack
+initialTerritoriesMode: random
+troopsToNewTerritory: min
+Fitness: 3.1791047953177776
+_________________________________________________________________________________________
+Child 3
+Map in /home/lana/PycharmProjects/Risk-Generation/parameters/map4.json with the following parameters:
+troopsWonBeginTurn: 4
+advantageAttack: defense
+initialTerritoriesMode: pick
+troopsToNewTerritory: min
+Fitness: 3.197619047619048
+_________________________________________________________________________________________
+Child 4
+Map in /home/lana/PycharmProjects/Risk-Generation/parameters/map2.json with the following parameters:
+troopsWonBeginTurn: 3
+advantageAttack: defense
+initialTerritoriesMode: random
+troopsToNewTerritory: min
+Fitness: 3.4431341315499404
+_________________________________________________________________________________________
+Child 5
+Map in /home/lana/PycharmProjects/Risk-Generation/parameters/map10.json with the following parameters:
+troopsWonBeginTurn: 4
+advantageAttack: attack
+initialTerritoriesMode: pick
+troopsToNewTerritory: min
+Fitness: 3.6619040118292077
+_________________________________________________________________________________________
+Child 6
+Map in /home/lana/PycharmProjects/Risk-Generation/parameters/map5.json with the following parameters:
+troopsWonBeginTurn: 5
+advantageAttack: attack
+initialTerritoriesMode: pick
+troopsToNewTerritory: min
+Fitness: 3.7191341991341993
+_________________________________________________________________________________________
+Child 7
+Map in /home/lana/PycharmProjects/Risk-Generation/parameters/map9.json with the following parameters:
+troopsWonBeginTurn: 5
+advantageAttack: attack
+initialTerritoriesMode: random
+troopsToNewTerritory: min
+Fitness: 4.006080189035906
+_________________________________________________________________________________________
+Child 8
+Map in /home/lana/PycharmProjects/Risk-Generation/parameters/map7.json with the following parameters:
+troopsWonBeginTurn: 2
+advantageAttack: attack
+initialTerritoriesMode: random
+troopsToNewTerritory: min
+Fitness: 4.333088997883236
+_________________________________________________________________________________________
+Child 9
+Map in /home/lana/PycharmProjects/Risk-Generation/parameters/map6.json with the following parameters:
+troopsWonBeginTurn: 1
+advantageAttack: defense
+initialTerritoriesMode: pick
+troopsToNewTerritory: min
+Fitness: 4.476812947401182
+_________________________________________________________________________________________

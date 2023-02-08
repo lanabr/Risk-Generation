@@ -6,7 +6,7 @@ from Map import Map
 import json
 import os
 
-MAPCOUNT = 6
+MAPCOUNT = 11
 
 
 def calculateCriteria(gameParameters):
@@ -195,6 +195,8 @@ def mapMutation(mapPath, mutation_rate):
     connections = map._connections
     continents = map.continents
     continentsValue = map.continentsValue
+
+    print(continents)
 
     if random.random() > mutation_rate:   # Create connection
         terr1 = random.randint(0, len(connections) - 1)
