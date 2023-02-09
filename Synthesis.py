@@ -7,7 +7,7 @@ import os
 class Synthesis:
     def __init__(self):
         self.population = []
-        self.numGenerations = 10
+        self.numGenerations = 20
         self.numOffspring = 3
         self.tournamentSize = 5
 

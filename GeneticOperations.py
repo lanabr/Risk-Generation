@@ -211,9 +211,9 @@ def mapMutation(mutation_rate, mapParts, mapPath):
         terr1 = random.randint(0, len(connections) - 1)
         terr2 = random.choice(connections[terr1])
 
-        print(mapPath)
-        connections[terr1].remove(terr2)
-        connections[terr2].remove(terr1)
+        if terr2 in connections[terr1] and terr1 in connections[terr2]:
+            connections[terr1].remove(terr2)
+            connections[terr2].remove(terr1)
 
     if random.random() > mutation_rate:    # "Steal" a territory from a continent
         if len(continents) > 1:
