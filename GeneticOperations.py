@@ -6,6 +6,7 @@ from Map import Map
 import json
 import os
 
+
 MAPCOUNT = 11
 
 
@@ -63,8 +64,8 @@ def mapCrossover(mapPath1, mapPath2):
     k2 = random.choice(range((len(allContinents2) // 2) - 1, (len(allContinents2) // 2) + 2))
     k2 = max(1, min(k2, len(allContinents2)))
 
-    cont1 = random.choices(allContinents1, k=k1)
-    cont2 = random.choices(allContinents2, k=k2)
+    cont1 = random.sample(allContinents1, k=k1)
+    cont2 = random.sample(allContinents2, k=k2)
 
     territoriesFrom1 = getTerritoriesFromContinents(map1, cont1)
     territoriesFrom2 = getTerritoriesFromContinents(map2, cont2)
@@ -139,8 +140,9 @@ def mapCrossover(mapPath1, mapPath2):
     territories = list(range(len(newConnections)))
 
     mapPath = exportMap(territories, newConnections, newMapContinents, newContValues)
+    mapParts = [territories, newConnections, newMapContinents, newContValues]
 
-    return mapPath
+    return mapPath, mapParts
 
 
 def getTerritoriesFromContinents(map, cont):
@@ -169,13 +171,14 @@ def getConnectionsFromTerritories(map, territories):
     return connections
 
 
-def crossover(parents, numOffspring):
+def crossover(parents, numOffspring, generation):
     # scattered crossover
     global MAPCOUNT
 
     offspring = []
+    mapParts = []
     for i in range(numOffspring):
-        newMapPath = mapCrossover(parents[0].mapPath, parents[1].mapPath)
+        newMapPath, mapParts = mapCrossover(parents[0].mapPath, parents[1].mapPath)
         MAPCOUNT += 1
         newTroopsWonBeginTurn = random.choice([parents[0].troopsWonBeginTurn, parents[1].troopsWonBeginTurn])
         newAdvantageAttack = random.choice([parents[0].advantageAttack, parents[1].advantageAttack])
@@ -183,35 +186,34 @@ def crossover(parents, numOffspring):
         newTroopsToNewTerritory = random.choice([parents[0].troopsToNewTerritory, parents[1].troopsToNewTerritory])
 
         offspring.append(Parameters(newMapPath, newTroopsWonBeginTurn, newAdvantageAttack, newInitialTerritoriesMode, newTroopsToNewTerritory))
+        offspring[-1].generation = generation
 
-    return offspring
+    return offspring, mapParts
 
 
-def mapMutation(mapPath, mutation_rate):
-    map = Map(mapPath)
+def mapMutation(mutation_rate, mapParts, mapPath):
     random.seed(time())
 
-    territories = map.territories
-    connections = map._connections
-    continents = map.continents
-    continentsValue = map.continentsValue
-
-    print(continents)
+    territories = mapParts[0]
+    connections = mapParts[1]
+    continents = mapParts[2]
+    continentsValue = mapParts[3]
 
     if random.random() > mutation_rate:   # Create connection
         terr1 = random.randint(0, len(connections) - 1)
         terr2 = random.randint(0, len(connections) - 1)
 
-        if terr1 != terr2 and terr2 not in connections[str(terr1)]:
-            connections[str(terr1)].append(terr2)
-            connections[str(terr2)].append(terr1)
+        if terr1 != terr2 and terr2 not in connections[terr1]:
+            connections[terr1].append(terr2)
+            connections[terr2].append(terr1)
 
     if random.random() > mutation_rate:   # Remove connection
         terr1 = random.randint(0, len(connections) - 1)
-        terr2 = random.choice(connections[str(terr1)])
+        terr2 = random.choice(connections[terr1])
 
-        connections[str(terr1)].remove(terr2)
-        connections[str(terr2)].remove(terr1)
+        print(mapPath)
+        connections[terr1].remove(terr2)
+        connections[terr2].remove(terr1)
 
     if random.random() > mutation_rate:    # "Steal" a territory from a continent
         if len(continents) > 1:
@@ -219,7 +221,7 @@ def mapMutation(mapPath, mutation_rate):
             stoleTerr = False
             while stoleTerr is False:
                 terr1 = random.choice(cont)
-                possibleTerr = random.choice(connections[str(terr1)])
+                possibleTerr = random.choice(connections[terr1])
                 if possibleTerr not in cont:
                     stoleTerr = True
                     for c in continents:
@@ -231,8 +233,8 @@ def mapMutation(mapPath, mutation_rate):
             cont1 = random.randint(0, len(continentsValue) - 1)
             cont2 = random.randint(0, len(continentsValue) - 1)
 
-            temp = continentsValue[str(cont1)]
-            continentsValue[cont1] = continentsValue[str(cont2)]
+            temp = continentsValue[cont1]
+            continentsValue[cont1] = continentsValue[cont2]
             continentsValue[cont2] = temp
 
     if random.random() > mutation_rate:    # Modify the value of a continent
@@ -240,21 +242,21 @@ def mapMutation(mapPath, mutation_rate):
 
         decide = random.choice([True, False])
         if decide:
-            continentsValue[str(cont)] += 1
+            continentsValue[cont] += 1
         else:
-            continentsValue[str(cont)] = max(1, continentsValue[str(cont)])
+            continentsValue[cont] = max(1, continentsValue[cont])
 
     mapPath = exportMap(territories, connections, continents, continentsValue)
 
     return mapPath
 
 
-def mutation(offspring):
+def mutation(offspring, mapParts):
     random.seed(time())
     mutation_rate = 0.7
 
     for child in offspring:
-        child.mapPath = mapMutation(child.mapPath, mutation_rate)
+        child.mapPath = mapMutation(mutation_rate, mapParts, child.mapPath)
 
         if random.random() > mutation_rate:
             possible = [1, 2, 3, 4, 5]
@@ -280,6 +282,26 @@ def mutation(offspring):
                 child.troopsToNewTerritory = 'max'
             else:
                 child.troopsToNewTerritory = 'min'
+
+    return offspring
+
+
+def checkMap(offspring):
+    for child in offspring:
+        map = Map(child.mapPath)
+        check = True
+
+        # check planar graph
+        if not map.isPlanarGraph():
+            check = False
+
+        # check connected graph
+        if not map.isConnectedGraph():
+            check = False
+
+        if not check:
+            offspring.remove(child)
+            #os.remove(child.mapPath)
 
     return offspring
 

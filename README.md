@@ -1,10 +1,5 @@
 # Risk-Generation
 
-TODO:
-
-Checar erros da síntese  
-Fazer mapas menores
-
 
 SE SOBRAR TEMPO:  
 Fazer o agente mais inteligente  

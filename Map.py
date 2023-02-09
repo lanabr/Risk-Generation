@@ -248,6 +248,12 @@ class Map:
         plt.show()
         plt.pause(0.01)
 
+    def isPlanarGraph(self):
+        return nx.check_planarity(self.map)[0]
+
+    def isConnectedGraph(self):
+        return nx.is_connected(self.map)
+
 
 
 
