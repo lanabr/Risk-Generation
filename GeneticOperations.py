@@ -11,8 +11,7 @@ MAPCOUNT = 11
 
 
 def calculateCriteria(gameParameters):
-    metricsFile = "metrics/game" + gameParameters.mapPath[-6] + "-" \
-                  + str(gameParameters.troopsWonBeginTurn) + "-" + gameParameters.advantageAttack + "-" \
+    metricsFile = "metrics/game" + str(gameParameters.troopsWonBeginTurn) + "-" + gameParameters.advantageAttack + "-" \
                   + gameParameters.initialTerritoriesMode + "-" + gameParameters.troopsToNewTerritory + ".txt"
 
     criteria = CalculateCriteria()

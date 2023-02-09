@@ -168,7 +168,7 @@ class GameState:
                     self.map.territories[territoryidDefending].addTroops(self.map.territories[territoryidAttacking].numberOfTroops - 1)
                 self.map.territories[territoryidDefending].ownedByPlayer = self.currentPlayer.playerID
 
-                if self.cardGiven is False:
+                if self.cardGiven is False and len(self.terrDeck.deck) > 0:
                     cardToPlayer = random.choice(self.terrDeck.deck)
                     self.currentPlayer.cards.append(cardToPlayer)
                     self.terrDeck.deck.remove(cardToPlayer)
