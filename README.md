@@ -1,6 +1,12 @@
 # Risk-Generation
 
-TODO  
-Rever algoritmos genéticos, como refazer  
-Pegar os fitness menor, médio e maior para plotar  
-Excluir a população anterior e ir repondo com a nova  
+Sistema de geração de jogos no estilo Risk. Os parametros com possibilidade de variação são
+o mapa, o divisor de tropas no início de cada turno, o modo como os territórios são 
+distribuídos, o lado de vantagem em uma batalha e quantas tropas são movidas em caso de 
+vitória em uma batalha.  
+
+Os parâmetros gerados estão salvos em sua respectiva subpasta na pasta "parameters",
+juntamente com os respectivos mapas gerados.
+
+#### #TODO  
+Ver se o movefiles dá certo

@@ -12,4 +12,3 @@ class Parameters:
 
         self.criteria = {}
         self.fitness = 0
-        self.generation = 0

@@ -1,3 +1,5 @@
+import copy
+
 from Parameters import Parameters
 from CalculateCriteria import CalculateCriteria
 import random
@@ -38,7 +40,6 @@ def calculateFitness(gameParameters):
 
 
 def selectionTournament(population, tournamentSize):
-    # tournament selection
     tournament = []
     for i in range(tournamentSize):
         tournament.append(population[random.randint(0, len(population) - 1)])
@@ -170,27 +171,39 @@ def getConnectionsFromTerritories(map, territories):
     return connections
 
 
-def crossover(parents, numOffspring, generation):
-    # scattered crossover
+def crossover(parents):
     global MAPCOUNT
 
     offspring = []
     mapParts = []
-    for i in range(numOffspring):
-        newMapPath, mapParts = mapCrossover(parents[0].mapPath, parents[1].mapPath)
-        MAPCOUNT += 1
-        newTroopsWonBeginTurn = random.choice([parents[0].troopsWonBeginTurn, parents[1].troopsWonBeginTurn])
-        newAdvantageAttack = random.choice([parents[0].advantageAttack, parents[1].advantageAttack])
-        newInitialTerritoriesMode = random.choice([parents[0].initialTerritoriesMode, parents[1].initialTerritoriesMode])
-        newTroopsToNewTerritory = random.choice([parents[0].troopsToNewTerritory, parents[1].troopsToNewTerritory])
 
-        offspring.append(Parameters(newMapPath, newTroopsWonBeginTurn, newAdvantageAttack, newInitialTerritoriesMode, newTroopsToNewTerritory))
-        offspring[-1].generation = generation
+    features = [1, 1, 0, 0]
+    random.shuffle(features)
+
+    newMapPath1, mapPartsTemp1 = mapCrossover(parents[0].mapPath, parents[1].mapPath)
+    MAPCOUNT += 1
+    featuresChild1 = (Parameters(newMapPath1, parents[features[0]].troopsWonBeginTurn, parents[features[1]].advantageAttack, parents[features[2]].initialTerritoriesMode, parents[features[3]].troopsToNewTerritory))
+
+    for i in range(len(features)):
+        if features[i] == 1:
+            features[i] = 0
+        else:
+            features[i] = 1
+
+    newMapPath2, mapPartsTemp2 = mapCrossover(parents[0].mapPath, parents[1].mapPath)
+    MAPCOUNT += 1
+    featuresChild2 = (Parameters(newMapPath2, parents[features[0]].troopsWonBeginTurn, parents[features[1]].advantageAttack, parents[features[2]].initialTerritoriesMode, parents[features[3]].troopsToNewTerritory))
+
+    mapParts.append(mapPartsTemp1)
+    mapParts.append(mapPartsTemp2)
+
+    offspring.append(featuresChild1)
+    offspring.append(featuresChild2)
 
     return offspring, mapParts
 
 
-def mapMutation(mutation_rate, mapParts, mapPath):
+def mapMutation(mutation_rate, mapParts):
     random.seed(time())
 
     territories = mapParts[0]
@@ -218,9 +231,12 @@ def mapMutation(mutation_rate, mapParts, mapPath):
         if len(continents) > 1:
             cont = random.choice(continents)
             stoleTerr = False
-            while stoleTerr is False:
-                terr1 = random.choice(cont)
+            terrList = copy.copy(cont)
+            while stoleTerr is False and len(terrList) > 0:
+                terr1 = random.choice(terrList)
+                print(connections, terr1)
                 possibleTerr = random.choice(connections[terr1])
+                terrList.remove(terr1)
                 if possibleTerr not in cont:
                     stoleTerr = True
                     for c in continents:
@@ -252,10 +268,10 @@ def mapMutation(mutation_rate, mapParts, mapPath):
 
 def mutation(offspring, mapParts):
     random.seed(time())
-    mutation_rate = 0.7
+    mutation_rate = 0.5
 
     for child in offspring:
-        child.mapPath = mapMutation(mutation_rate, mapParts, child.mapPath)
+        child.mapPath = mapMutation(mutation_rate, mapParts[offspring.index(child)])
 
         if random.random() > mutation_rate:
             possible = [1, 2, 3, 4, 5]
