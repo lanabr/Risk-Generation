@@ -224,7 +224,8 @@ if __name__ == "__main__":
     agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
     agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
 
-    game = Game(showActions=False, parameters=Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map6.json", 5, "defense", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=False, parameters=Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map6.json", 3, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
 
-    game.playtest().printMetrics()
+    game.playtest()
 '''
+

@@ -4,6 +4,8 @@ from Structures.PlayerID import PlayerID
 from Structures.ValidPlayerColors import ValidPlayerColors
 from tqdm import tqdm
 from Parameters import Parameters
+from GeneticOperations import calculateCriteria
+import os
 
 
 def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCount=300, maxTime=20):
@@ -18,3 +20,9 @@ def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCo
             metricsFile = "metrics/game" + str(gameParameters.troopsWonBeginTurn) + "-" + gameParameters.advantageAttack + "-" \
                             + gameParameters.initialTerritoriesMode + "-" + gameParameters.troopsToNewTerritory + ".txt"
             metrics.appendToFile(metricsFile)
+
+'''
+playtestNtimes(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map6.json", 3, "attack", "pick", "min"))
+calculateCriteria(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map6.json", 3, "attack", "pick", "min"))
+os.remove("metrics/game3-attack-pick-min.txt")
+'''

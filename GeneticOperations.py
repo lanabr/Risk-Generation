@@ -224,8 +224,8 @@ def mapMutation(mutation_rate, mapParts):
         terr2 = random.choice(connections[terr1])
 
         if terr2 in connections[terr1] and terr1 in connections[terr2]:
-            connections[terr1].remove(terr2)
-            connections[terr2].remove(terr1)
+            connections[terr1].remove(int(terr2))
+            connections[terr2].remove(int(terr1))
 
     if random.random() > mutation_rate:    # "Steal" a territory from a continent
         if len(continents) > 1:
@@ -234,7 +234,9 @@ def mapMutation(mutation_rate, mapParts):
             terrList = copy.copy(cont)
             while stoleTerr is False and len(terrList) > 0:
                 terr1 = random.choice(terrList)
-                print(connections, terr1)
+                if len(connections[terr1]) < 1:
+                    terrList.remove(terr1)
+                    continue
                 possibleTerr = random.choice(connections[terr1])
                 terrList.remove(terr1)
                 if possibleTerr not in cont:

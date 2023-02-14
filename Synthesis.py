@@ -24,8 +24,8 @@ class Synthesis:
         self.createPopulation()
 
         for i in range(self.numGenerations):
-            print("\nGeneration " + str(i) + " of " + str(self.numGenerations) + " generations")
-            newPopulation = [self.population[0]]   # elitism
+            print("\nGeneration " + str(i + 1) + " of " + str(self.numGenerations) + " generations")
+            newPopulation = self.createNewPopulation(self.population[0])   # elitism
 
             while len(newPopulation) < self.numOffspring:
                 parents = self.selection()
@@ -38,10 +38,10 @@ class Synthesis:
                 for child in offspring:
                     self.playtest(child)
 
-                self.calculateFitness(i)
                 newPopulation.extend(offspring)
 
-            self.updatePopulation(newPopulation)
+            self.updatePopulation(newPopulation, i)
+            self.calculateFitness(i)
 
         print("Saving final population")
         self.showResults("results_risk_generation_" + str(self.numGenerations) + "generations_" + str(
@@ -51,6 +51,8 @@ class Synthesis:
         self.moveFiles()
 
         print("------------ Finished ------------")
+
+        op.MAPCOUNT = 11
 
     def createPopulation(self):
         for _ in range(self.numOffspring):
@@ -81,6 +83,14 @@ class Synthesis:
 
         self.population.sort(key=lambda x: x.fitness)
 
+    def createNewPopulation(self, best):
+        newPopulation = [best]
+
+        self.playtest(best)
+        best.fitness = op.calculateFitness(best)
+
+        return newPopulation
+
     def selection(self):
         parents = op.selectionTournament(self.population, self.tournamentSize)
 
@@ -110,7 +120,34 @@ class Synthesis:
     def calculateCriteria(self, gameParam):
         gameParam.criteria = op.calculateCriteria(gameParam)
 
-    def updatePopulation(self, offspring):
+    def updatePopulation(self, offspring, generation):
+        strToWrite = "Generation " + str(generation + 1) + " of " + str(self.numGenerations) + " generations\n"
+        strToWrite += "Best fitness: " + str(self.population[0].fitness) + "\n"
+        strToWrite += "Population: \n"
+
+        for child in offspring:
+            strToWrite += "Child " + str(offspring.index(child)) + "\n"
+            strToWrite += "Fitness: " + str(child.fitness) + "\n"
+            strToWrite += "Parameters: \n"
+            strToWrite += "Map in " + child.mapPath + " with the following parameters:\n"
+            strToWrite += "troopsWonBeginTurn: " + str(child.troopsWonBeginTurn) + "\n"
+            strToWrite += "advantageAttack: " + str(child.advantageAttack) + "\n"
+            strToWrite += "initialTerritoriesMode: " + str(child.initialTerritoriesMode) + "\n"
+            strToWrite += "troopsToNewTerritory: " + str(child.troopsToNewTerritory) + "\n"
+            strToWrite += "Criteria: \n"
+            strToWrite += "Advantage: " + str(child.criteria["advantage"]) + "\n"
+            strToWrite += "Duration: " + str(child.criteria["duration"]) + "\n"
+            strToWrite += "Drama: " + str(child.criteria["drama"]) + "\n"
+            strToWrite += "Lead Change: " + str(child.criteria["leadChange"]) + "\n"
+            strToWrite += "Branching Factor: " + str(child.criteria["branchingFactor"]) + "\n"
+            strToWrite += "Completion: " + str(child.criteria["completion"]) + "\n"
+            strToWrite += "Killer Moves: " + str(child.criteria["killerMoves"]) + "\n"
+            strToWrite += "_________________________________________________________________________________________" + "\n"
+
+        fileName = "parameters/generation" + str(generation + 1) + ".txt"
+        with open(fileName, "w") as file:
+            file.write(strToWrite)
+
         self.population = offspring
 
     def showResults(self, fileName):
@@ -121,12 +158,21 @@ class Synthesis:
 
         for gameParam, i in zip(self.population, range(len(self.population))):
             strToWrite += "Child " + str(i) + "\n"
+            strToWrite += "Fitness: " + str(gameParam.fitness) + "\n"
+            strToWrite += "Parameters: \n"
             strToWrite += "Map in " + gameParam.mapPath + " with the following parameters:\n"
             strToWrite += "troopsWonBeginTurn: " + str(gameParam.troopsWonBeginTurn) + "\n"
             strToWrite += "advantageAttack: " + str(gameParam.advantageAttack) + "\n"
             strToWrite += "initialTerritoriesMode: " + str(gameParam.initialTerritoriesMode) + "\n"
             strToWrite += "troopsToNewTerritory: " + str(gameParam.troopsToNewTerritory) + "\n"
-            strToWrite += "Fitness: " + str(gameParam.fitness) + "\n"
+            strToWrite += "Criteria: \n"
+            strToWrite += "Advantage: " + str(gameParam.criteria["advantage"]) + "\n"
+            strToWrite += "Duration: " + str(gameParam.criteria["duration"]) + "\n"
+            strToWrite += "Drama: " + str(gameParam.criteria["drama"]) + "\n"
+            strToWrite += "Lead Change: " + str(gameParam.criteria["leadChange"]) + "\n"
+            strToWrite += "Branching Factor: " + str(gameParam.criteria["branchingFactor"]) + "\n"
+            strToWrite += "Completion: " + str(gameParam.criteria["completion"]) + "\n"
+            strToWrite += "Killer Moves: " + str(gameParam.criteria["killerMoves"]) + "\n"
             strToWrite += "_________________________________________________________________________________________" + "\n"
 
         with open(fileName, "w") as file:
@@ -146,7 +192,7 @@ class Synthesis:
                 shutil.move("/home/lana/PycharmProjects/Risk-Generation/parameters/" + map,
                             "/home/lana/PycharmProjects/Risk-Generation/parameters/results_risk_generation_" + str(
                                 self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
-                                self.tournamentSize) + "tournamentsize")
+                                self.tournamentSize) + "tournamentsize/")
 
         shutil.move("/home/lana/PycharmProjects/Risk-Generation/results_risk_generation_" + str(
             self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
@@ -160,6 +206,14 @@ class Synthesis:
             self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
             self.tournamentSize) + "tournamentsize/")
 
+        generations = os.listdir("/home/lana/PycharmProjects/Risk-Generation/parameters")
+        for generation in generations:
+            if generation.startswith("generation"):
+                shutil.move("/home/lana/PycharmProjects/Risk-Generation/parameters/" + generation,
+                            "/home/lana/PycharmProjects/Risk-Generation/parameters/results_risk_generation_" + str(
+                                self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
+                                self.tournamentSize) + "tournamentsize/")
+
         # remove metrics files
         metrics = os.listdir("/home/lana/PycharmProjects/Risk-Generation/metrics")
         for metric in metrics:
@@ -172,17 +226,23 @@ class Synthesis:
         maxFitness = []
         minFitness = []
         avgFitness = []
-        y = range(len(self.allFitness))
+        idealFitness = []
+        worstFitness = []
+        x = range(len(self.allFitness))
 
         for gen in self.allFitness:
             maxFitness.append(max(gen))
             minFitness.append(min(gen))
             avgFitness.append(sum(gen) / len(gen))
+            idealFitness.append(0)
+            worstFitness.append(5)
 
-        plt.plot(maxFitness, y, label="Max")
-        plt.plot(minFitness, y, label="Min")
-        plt.plot(avgFitness, y, label="Avg")
-        plt.xlabel("Child")
+        plt.clf()
+        plt.plot(x, )
+        plt.plot(x, maxFitness, label="Max")
+        plt.plot(x, minFitness, label="Min")
+        plt.plot(x, avgFitness, label="Avg")
+        plt.xlabel("Generations")
         plt.ylabel("Fitness")
         plt.title("Fitness along generations")
         plt.savefig("fitness_" + str(self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
@@ -194,6 +254,6 @@ if __name__ == "__main__":
 
     for gen in range(10, 100, 10):
         for off in range(5, 20, 5):
-            for tour in range(2, off, 2):
+            for tour in range(2, off-1, 2):
                 s = Synthesis(numGenerations=gen, numOffspring=off, tournamentSize=tour)
                 s.gameGenerator()

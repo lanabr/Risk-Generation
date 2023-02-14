@@ -81,8 +81,8 @@ class CalculateCriteria:
                 cumulativeSum[0] += self.allMetrics[game][turn][2]
                 cumulativeSum[1] += self.allMetrics[game][turn][3]
 
-            branchingFactorP1 += min(1.0, math.log10((cumulativeSum[0] / self.allTurnCounts[game]) + 1) / 2)
-            branchingFactorP2 += min(1.0, math.log10((cumulativeSum[1] / self.allTurnCounts[game]) + 1) / 2)
+            branchingFactorP1 += min(1.0, math.log10((cumulativeSum[0] / (self.allTurnCounts[game]+1)) + 1) / 2)
+            branchingFactorP2 += min(1.0, math.log10((cumulativeSum[1] / (self.allTurnCounts[game]+1)) + 1) / 2)
 
         resultP1 = branchingFactorP1 / len(self.allTurnCounts)
         resultP2 = branchingFactorP2 / len(self.allTurnCounts)
@@ -129,11 +129,13 @@ class CalculateCriteria:
                 self.allMetrics.append(gameMetrics)
                 gameMetrics = []
                 i += 3
+
         return
+
 
 '''
 cc = CalculateCriteria()
-cc.importMetricsFromFile("/home/lana/PycharmProjects/Risk-Generation/metrics/game1-1-attack-pick-min.txt")
+cc.importMetricsFromFile("/home/lana/PycharmProjects/Risk-Generation/metrics/game3-attack-pick-min.txt")
 
 print(cc.calculateBranchingFactor())
 

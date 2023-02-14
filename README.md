@@ -8,5 +8,6 @@ vitória em uma batalha.
 Os parâmetros gerados estão salvos em sua respectiva subpasta na pasta "parameters",
 juntamente com os respectivos mapas gerados.
 
-#### #TODO  
-Ver se o movefiles dá certo
+
+
+
