@@ -4,11 +4,11 @@ from Structures.PlayerID import PlayerID
 from Structures.ValidPlayerColors import ValidPlayerColors
 from tqdm import tqdm
 from Parameters import Parameters
-from GeneticOperations import calculateCriteria
+from CalculateCriteria import run
 import os
 
 
-def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCount=300, maxTime=20):
+def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCount=50, maxTime=20):
     for _ in tqdm(range(numberOfTimes)):
         agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
         agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
@@ -21,8 +21,10 @@ def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCo
                             + gameParameters.initialTerritoriesMode + "-" + gameParameters.troopsToNewTerritory + ".txt"
             metrics.appendToFile(metricsFile)
 
+
 '''
-playtestNtimes(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map6.json", 3, "attack", "pick", "min"))
-calculateCriteria(Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map6.json", 3, "attack", "pick", "min"))
-os.remove("metrics/game3-attack-pick-min.txt")
+game = Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map125.json", 3, "defense", "random", "max")
+playtestNtimes(game)
+run("/home/lana/PycharmProjects/Risk-Generation/metrics/game3-defense-random-max.txt")
+#os.remove("metrics/game3-attack-pick-min.txt")
 '''

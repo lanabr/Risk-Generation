@@ -17,8 +17,9 @@ class CalculateCriteria:
 
         return abs(allZero - (len(self.allWinners) / 2)) / (len(self.allWinners) / 2)
 
-    def calculateDuration(self, preferredLength=14):
+    def calculateDuration(self, preferredLength=25):
         cumulativeSum = 0
+        mean = sum(self.allTurnCounts) / len(self.allTurnCounts)
 
         for i in self.allTurnCounts:  # somatório de todos os jogos
             cumulativeSum += (abs(preferredLength - i)) / preferredLength  # duração preferida - duração do jogo g / preferida
@@ -92,7 +93,7 @@ class CalculateCriteria:
     def calculateCompletion(self):
         allWins = self.allWinners.count(0) + self.allWinners.count(1)
 
-        result = allWins / len(self.allWinners)
+        result = allWins / len(self.allTurnCounts)
 
         return result
 
@@ -100,8 +101,11 @@ class CalculateCriteria:
         cumulativeSum = 0
 
         for game in range(len(self.allMetrics)):
-            for turn in range(1, len(self.allMetrics[game])):
-                cumulativeSum += (self.allMetrics[game][turn][0] - self.allMetrics[game][turn][1]) - (self.allMetrics[game][turn-1][0] - self.allMetrics[game][turn-1][1])
+            gameSum = []
+            for turn in range(1, len(self.allMetrics[game]) - 1):
+                gameSum.append((self.allMetrics[game][turn][0] - self.allMetrics[game][turn][1]) - (self.allMetrics[game][turn-1][0] - self.allMetrics[game][turn-1][1]))
+
+            cumulativeSum += max(gameSum)
 
         return cumulativeSum / len(self.allMetrics)
 
@@ -133,19 +137,15 @@ class CalculateCriteria:
         return
 
 
-'''
-cc = CalculateCriteria()
-cc.importMetricsFromFile("/home/lana/PycharmProjects/Risk-Generation/metrics/game3-attack-pick-min.txt")
+def run(filename):
+    cc = CalculateCriteria()
+    cc.importMetricsFromFile(filename)
 
-print(cc.calculateBranchingFactor())
-
-print(cc.calculateAdvantage())
-print(cc.calculateDuration())
-print(cc.calculateDrama())
-print(cc.calculateLeadChange())
-
-print(cc.calculateCompletion())
-print(cc.calculateKillerMoves())
-'''
-
+    print(cc.calculateAdvantage())
+    print(cc.calculateDuration())
+    print(cc.calculateDrama())
+    print(cc.calculateLeadChange())
+    print(cc.calculateBranchingFactor())
+    print(cc.calculateCompletion())
+    print(cc.calculateKillerMoves())
 

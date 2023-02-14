@@ -28,9 +28,6 @@ class Metrics:
         print("Winner: " + str(self.winner))
 
     def appendToFile(self, fileName):
-        if os.path.exists(fileName):
-            os.remove(fileName)
-
         strToWrite = ""
         for i in range(len(self.listOfHeuristic)):
             strToWrite += str(i)

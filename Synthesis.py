@@ -238,7 +238,8 @@ class Synthesis:
             worstFitness.append(5)
 
         plt.clf()
-        plt.plot(x, )
+        plt.plot(x, idealFitness, label="Ideal")
+        plt.plot(x, worstFitness, label="Worst")
         plt.plot(x, maxFitness, label="Max")
         plt.plot(x, minFitness, label="Min")
         plt.plot(x, avgFitness, label="Avg")
@@ -251,7 +252,6 @@ class Synthesis:
 
 
 if __name__ == "__main__":
-
     for gen in range(10, 100, 10):
         for off in range(5, 20, 5):
             for tour in range(2, off-1, 2):
