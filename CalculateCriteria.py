@@ -102,10 +102,12 @@ class CalculateCriteria:
 
         for game in range(len(self.allMetrics)):
             gameSum = []
-            for turn in range(1, len(self.allMetrics[game]) - 1):
+
+            for turn in range(0, len(self.allMetrics[game]) - 1):
                 gameSum.append((self.allMetrics[game][turn][0] - self.allMetrics[game][turn][1]) - (self.allMetrics[game][turn-1][0] - self.allMetrics[game][turn-1][1]))
 
-            cumulativeSum += max(gameSum)
+            if len(gameSum) > 0:
+                cumulativeSum += max(gameSum)
 
         return cumulativeSum / len(self.allMetrics)
 

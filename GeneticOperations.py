@@ -1,5 +1,7 @@
 import copy
 
+import networkx as nx
+
 from Parameters import Parameters
 from CalculateCriteria import CalculateCriteria
 import random
@@ -13,7 +15,7 @@ MAPCOUNT = 11
 
 
 def calculateCriteria(gameParameters):
-    metricsFile = "metrics/game" + str(gameParameters.troopsWonBeginTurn) + "-" + gameParameters.advantageAttack + "-" \
+    metricsFile = "metrics/game" + str(gameParameters.troopsWonBeginTurn) + "-" + str(gameParameters.defenseDices) + "-" \
                   + gameParameters.initialTerritoriesMode + "-" + gameParameters.troopsToNewTerritory + ".txt"
 
     criteria = CalculateCriteria()
@@ -182,7 +184,7 @@ def crossover(parents):
 
     newMapPath1, mapPartsTemp1 = mapCrossover(parents[0].mapPath, parents[1].mapPath)
     MAPCOUNT += 1
-    featuresChild1 = (Parameters(newMapPath1, parents[features[0]].troopsWonBeginTurn, parents[features[1]].advantageAttack, parents[features[2]].initialTerritoriesMode, parents[features[3]].troopsToNewTerritory))
+    featuresChild1 = (Parameters(newMapPath1, parents[features[0]].troopsWonBeginTurn, parents[features[1]].defenseDices, parents[features[2]].initialTerritoriesMode, parents[features[3]].troopsToNewTerritory))
 
     for i in range(len(features)):
         if features[i] == 1:
@@ -192,7 +194,7 @@ def crossover(parents):
 
     newMapPath2, mapPartsTemp2 = mapCrossover(parents[0].mapPath, parents[1].mapPath)
     MAPCOUNT += 1
-    featuresChild2 = (Parameters(newMapPath2, parents[features[0]].troopsWonBeginTurn, parents[features[1]].advantageAttack, parents[features[2]].initialTerritoriesMode, parents[features[3]].troopsToNewTerritory))
+    featuresChild2 = (Parameters(newMapPath2, parents[features[0]].troopsWonBeginTurn, parents[features[1]].defenseDices, parents[features[2]].initialTerritoriesMode, parents[features[3]].troopsToNewTerritory))
 
     mapParts.append(mapPartsTemp1)
     mapParts.append(mapPartsTemp2)
@@ -223,9 +225,10 @@ def mapMutation(mutation_rate, mapParts):
         terr1 = random.randint(0, len(connections) - 1)
         terr2 = random.choice(connections[terr1])
 
-        if terr2 in connections[terr1] and terr1 in connections[terr2]:
+        if terr2 in connections[terr1]:
             connections[terr1].remove(int(terr2))
-            connections[terr2].remove(int(terr1))
+            if terr1 in connections[terr2]:
+                connections[terr2].remove(int(terr1))
 
     if random.random() > mutation_rate:    # "Steal" a territory from a continent
         if len(continents) > 1:
@@ -268,33 +271,32 @@ def mapMutation(mutation_rate, mapParts):
     return mapPath
 
 
-def mutation(offspring, mapParts):
+def mutation(offspring, mapParts, mutationRate):
     random.seed(time())
-    mutation_rate = 0.5
 
     for child in offspring:
-        child.mapPath = mapMutation(mutation_rate, mapParts[offspring.index(child)])
+        child.mapPath = mapMutation(mutationRate, mapParts[offspring.index(child)])
 
-        if random.random() > mutation_rate:
+        if random.random() > mutationRate:
             possible = [1, 2, 3, 4, 5]
 
             possible.remove(child.troopsWonBeginTurn)
 
             child.troopsWonBeginTurn = random.choice(possible)
 
-        if random.random() > mutation_rate:
-            if child.advantageAttack == 'attack':
-                child.advantageAttack = 'defense'
+        if random.random() > mutationRate:
+            if child.defenseDices == 3:
+                child.defenseDices = 2
             else:
-                child.advantageAttack = 'attack'
+                child.defenseDices = 3
 
-        if random.random() > mutation_rate:
+        if random.random() > mutationRate:
             if child.initialTerritoriesMode == 'random':
                 child.initialTerritoriesMode = 'pick'
             else:
                 child.initialTerritoriesMode = 'random'
 
-        if random.random() > mutation_rate:
+        if random.random() > mutationRate:
             if child.troopsToNewTerritory == 'min':
                 child.troopsToNewTerritory = 'max'
             else:
@@ -309,12 +311,23 @@ def checkMap(offspring):
         check = True
 
         # check planar graph
-        if not map.isPlanarGraph():
+        if not nx.is_planar(map.map):
             check = False
 
         # check connected graph
-        if not map.isConnectedGraph():
+        if not nx.is_connected(map.map):
             check = False
+
+        # check if there are territories connected to themselves
+        for i in range(len(map._connections)):
+            if i in map._connections[str(i)]:
+                map._connections[str(i)].remove(i)
+
+        # check if connections are symmetric
+        for i in range(len(map._connections)):
+            for j in map._connections[str(i)]:
+                if i not in map._connections[str(j)]:
+                    map._connections[str(j)].append(i)
 
         if not check:
             offspring.remove(child)

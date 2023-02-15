@@ -11,4 +11,4 @@ juntamente com os respectivos mapas gerados.
 
 ## TODO
 
-
+Mudar o nome do parametro advantageattack

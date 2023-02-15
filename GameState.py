@@ -189,12 +189,6 @@ class GameState:
             return
 
     def rollDicesAndCompare(self, numberOfAttackUnits, numberOfDefenseUnits):
-        dicesDefense = 0
-        if self.parameters.advantageAttack == "attack":
-            dicesDefense = 2
-        elif self.parameters.advantageAttack == "defense":
-            dicesDefense = 3
-
         random.seed(time.time())
         listReturn = [0, 0]
         attackingUnitsValue = []
@@ -202,7 +196,7 @@ class GameState:
 
         for _ in range(min(numberOfAttackUnits, 3)):
             attackingUnitsValue.append(random.randint(0, 5))
-        for _ in range(min(numberOfDefenseUnits, dicesDefense)):
+        for _ in range(min(numberOfDefenseUnits, self.parameters.defenseDices)):
             defenseUnitsValue.append(random.randint(0, 5))
 
         attackingUnitsValue.sort(reverse=True)
