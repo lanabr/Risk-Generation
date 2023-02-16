@@ -59,7 +59,7 @@ class Synthesis:
     def createPopulation(self):
         for _ in range(self.numOffspring):
             mapPath = "/home/lana/PycharmProjects/Risk-Generation/parameters/map" + str(random.randint(1, 10)) + ".json"
-            troopsWonBeginTurn = random.randint(1, 5)
+            troopsWonBeginTurn = random.randint(1, 4)
             defenseDices = random.choice([2, 3])
             initialTerritoriesMode = random.choice(["pick", "random"])
             troopsToNewTerritory = random.choice(["min", "max"])
@@ -67,7 +67,7 @@ class Synthesis:
             self.population.append(Parameters(mapPath, troopsWonBeginTurn, defenseDices, initialTerritoriesMode, troopsToNewTerritory))
 
         for gameParam in self.population:
-            playtestNtimes(gameParameters=gameParam, numberOfTimes=100)
+            playtestNtimes(gameParameters=gameParam)
             gameParam.criteria = op.calculateCriteria(gameParam)
             os.remove("metrics/game" + str(gameParam.troopsWonBeginTurn) + "-" + str(gameParam.defenseDices) + "-"
                       + gameParam.initialTerritoriesMode + "-" + gameParam.troopsToNewTerritory + ".txt")
@@ -254,10 +254,10 @@ class Synthesis:
 
 
 if __name__ == "__main__":
-    for gen in range(10, 100, 10):
-        for off in range(5, 20, 5):
+    for gen in range(10, 300, 20):
+        for off in range(5, 50, 5):
             for tour in range(2, off-1, 2):
-                for mut in range(2, 8, 1):
+                for mut in range(2, 9, 2):
                     mut = mut / 10
                     s = Synthesis(numGenerations=gen, numOffspring=off, tournamentSize=tour, mutationRate=mut)
                     s.gameGenerator()

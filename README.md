@@ -10,5 +10,4 @@ juntamente com os respectivos mapas gerados.
 
 
 ## TODO
-
-mudar o max duration e preferred 
+Ver um jeito de ou remover ou adicionar novas conexões em um territorio que nao tem nenhuma conexão

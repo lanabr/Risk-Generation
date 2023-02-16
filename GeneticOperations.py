@@ -139,12 +139,15 @@ def mapCrossover(mapPath1, mapPath2):
     for i in cont2:
         newContValues.append(map2._continentsValue[i])
 
-    territories = list(range(len(newConnections)))
-
     # check if there are territories connected to themselves
     for i in range(len(newConnections)):
         if i in newConnections[i]:
             newConnections[i].remove(i)
+
+    # if territory dont have any connections, remove it
+    for i in newConnections:
+        if len(i) == 0:
+            newConnections.remove(i)
 
     # check if connections are symmetric
     for i in range(len(newConnections)):
@@ -152,7 +155,10 @@ def mapCrossover(mapPath1, mapPath2):
             if i not in newConnections[j]:
                 newConnections[j].append(i)
 
-    mapPath = exportMap(territories, newConnections, newMapContinents, newContValues)
+    territories = list(range(len(newConnections)))
+
+    global MAPCOUNT
+    mapPath = exportMap(territories, newConnections, newMapContinents, newContValues, MAPCOUNT)
     mapParts = [territories, newConnections, newMapContinents, newContValues]
 
     return mapPath, mapParts
@@ -194,8 +200,10 @@ def crossover(parents):
     random.shuffle(features)
 
     newMapPath1, mapPartsTemp1 = mapCrossover(parents[0].mapPath, parents[1].mapPath)
-    MAPCOUNT += 1
     featuresChild1 = (Parameters(newMapPath1, parents[features[0]].troopsWonBeginTurn, parents[features[1]].defenseDices, parents[features[2]].initialTerritoriesMode, parents[features[3]].troopsToNewTerritory))
+    featuresChild1.mapNumber = MAPCOUNT
+
+    MAPCOUNT += 1
 
     for i in range(len(features)):
         if features[i] == 1:
@@ -204,8 +212,10 @@ def crossover(parents):
             features[i] = 1
 
     newMapPath2, mapPartsTemp2 = mapCrossover(parents[0].mapPath, parents[1].mapPath)
-    MAPCOUNT += 1
     featuresChild2 = (Parameters(newMapPath2, parents[features[0]].troopsWonBeginTurn, parents[features[1]].defenseDices, parents[features[2]].initialTerritoriesMode, parents[features[3]].troopsToNewTerritory))
+    featuresChild2.mapNumber = MAPCOUNT
+
+    MAPCOUNT += 1
 
     mapParts.append(mapPartsTemp1)
     mapParts.append(mapPartsTemp2)
@@ -216,7 +226,7 @@ def crossover(parents):
     return offspring, mapParts
 
 
-def mapMutation(mutation_rate, mapParts):
+def mapMutation(mutation_rate, mapParts, mapNumber):
     random.seed(time())
 
     territories = mapParts[0]
@@ -277,7 +287,7 @@ def mapMutation(mutation_rate, mapParts):
         else:
             continentsValue[cont] = max(1, continentsValue[cont])
 
-    mapPath = exportMap(territories, connections, continents, continentsValue)
+    mapPath = exportMap(territories, connections, continents, continentsValue, mapNumber)
 
     return mapPath
 
@@ -286,10 +296,10 @@ def mutation(offspring, mapParts, mutationRate):
     random.seed(time())
 
     for child in offspring:
-        child.mapPath = mapMutation(mutationRate, mapParts[offspring.index(child)])
+        child.mapPath = mapMutation(mutationRate, mapParts[offspring.index(child)], child.mapNumber)
 
         if random.random() > mutationRate:
-            possible = [1, 2, 3, 4, 5]
+            possible = [1, 2, 3, 4]
 
             possible.remove(child.troopsWonBeginTurn)
 
@@ -335,8 +345,8 @@ def checkMap(offspring):
     return offspring
 
 
-def exportMap(territories, connections, continents, continentsValue):
-    fileName = "parameters/map" + str(MAPCOUNT) + ".json"
+def exportMap(territories, connections, continents, continentsValue, mapNumber):
+    fileName = "parameters/map" + str(mapNumber) + ".json"
     if os.path.exists(fileName):
         os.remove(fileName)
 
@@ -361,3 +371,6 @@ def exportMap(territories, connections, continents, continentsValue):
         fp.write(json.dumps(exportDict, indent=4))
 
     return fileName
+
+
+#print(len(checkMap([Parameters("parameters/results_risk_generation_10generations_10offspring_2tournamentsize_0.2mutationrate/map33.json", 1, 2, "random", "min")])))
