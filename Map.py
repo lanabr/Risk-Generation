@@ -12,7 +12,7 @@ import numpy as np
 
 class Map:
     def __init__(self, mapPath):
-        self.map = nx.Graph()
+        self.map = nx.DiGraph()
         self._territories = []
         self._connections = {}
         self._continents = {}

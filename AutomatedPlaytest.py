@@ -8,7 +8,7 @@ from CalculateCriteria import run
 import os
 
 
-def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCount=50, maxTime=20):
+def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCount=48, maxTime=20):
     for _ in tqdm(range(numberOfTimes)):
         agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
         agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))

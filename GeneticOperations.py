@@ -141,6 +141,17 @@ def mapCrossover(mapPath1, mapPath2):
 
     territories = list(range(len(newConnections)))
 
+    # check if there are territories connected to themselves
+    for i in range(len(newConnections)):
+        if i in newConnections[i]:
+            newConnections[i].remove(i)
+
+    # check if connections are symmetric
+    for i in range(len(newConnections)):
+        for j in newConnections[i]:
+            if i not in newConnections[j]:
+                newConnections[j].append(i)
+
     mapPath = exportMap(territories, newConnections, newMapContinents, newContValues)
     mapParts = [territories, newConnections, newMapContinents, newContValues]
 
@@ -315,23 +326,11 @@ def checkMap(offspring):
             check = False
 
         # check connected graph
-        if not nx.is_connected(map.map):
+        if not nx.is_strongly_connected(map.map):
             check = False
-
-        # check if there are territories connected to themselves
-        for i in range(len(map._connections)):
-            if i in map._connections[str(i)]:
-                map._connections[str(i)].remove(i)
-
-        # check if connections are symmetric
-        for i in range(len(map._connections)):
-            for j in map._connections[str(i)]:
-                if i not in map._connections[str(j)]:
-                    map._connections[str(j)].append(i)
 
         if not check:
             offspring.remove(child)
-            #os.remove(child.mapPath)
 
     return offspring
 

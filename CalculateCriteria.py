@@ -17,9 +17,9 @@ class CalculateCriteria:
 
         return abs(allZero - (len(self.allWinners) / 2)) / (len(self.allWinners) / 2)
 
-    def calculateDuration(self, preferredLength=25):
+    def calculateDuration(self):
         cumulativeSum = 0
-        mean = sum(self.allTurnCounts) / len(self.allTurnCounts)
+        preferredLength = 24
 
         for i in self.allTurnCounts:  # somatório de todos os jogos
             cumulativeSum += (abs(preferredLength - i)) / preferredLength  # duração preferida - duração do jogo g / preferida
