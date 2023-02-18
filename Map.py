@@ -180,6 +180,7 @@ class Map:
     def getTerritoriesFromContinent(self, continent):
         returnList = []
 
+        #print("0 ", self._continents)
         for territoryId in self._continents[continent]:
             returnList.append(self.territories[territoryId])
 

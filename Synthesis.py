@@ -7,6 +7,7 @@ from Parameters import Parameters
 from AutomatedPlaytest import playtestNtimes
 import os
 import copy
+import Evaluate
 
 
 class Synthesis:
@@ -58,7 +59,7 @@ class Synthesis:
 
     def createPopulation(self):
         for _ in range(self.numOffspring):
-            mapPath = "/home/lana/PycharmProjects/Risk-Generation/parameters/map" + str(random.randint(1, 10)) + ".json"
+            mapPath = "parameters/map" + str(random.randint(1, 10)) + ".json"
             troopsWonBeginTurn = random.randint(1, 4)
             defenseDices = random.choice([2, 3])
             initialTerritoriesMode = random.choice(["pick", "random"])
@@ -182,44 +183,44 @@ class Synthesis:
         self.plotFitness()
 
     def moveFiles(self):
-        maps = os.listdir("/home/lana/PycharmProjects/Risk-Generation/parameters")
-        os.mkdir("/home/lana/PycharmProjects/Risk-Generation/parameters/results_risk_generation_" + str(self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate")
+        maps = os.listdir("parameters/")
+        os.mkdir("parameters/results_risk_generation_" + str(self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate")
 
         for map in maps:
             if map.startswith("map") and map.endswith(".json") and map not in ["map1.json", "map2.json", "map3.json",
                                                                                "map4.json", "map5.json", "map6.json",
                                                                                "map7.json", "map8.json", "map9.json",
                                                                                "map10.json"]:
-                shutil.move("/home/lana/PycharmProjects/Risk-Generation/parameters/" + map,
-                            "/home/lana/PycharmProjects/Risk-Generation/parameters/results_risk_generation_" + str(
+                shutil.move("parameters/" + map,
+                            "parameters/results_risk_generation_" + str(
                                 self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
                                 self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate/")
 
-        shutil.move("/home/lana/PycharmProjects/Risk-Generation/results_risk_generation_" + str(
+        shutil.move("results_risk_generation_" + str(
             self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
-            self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate.txt", "/home/lana/PycharmProjects/Risk-Generation/parameters/results_risk_generation_" + str(
-            self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
-            self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate/")
-
-        shutil.move("/home/lana/PycharmProjects/Risk-Generation/fitness_" + str(
-            self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
-            self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate.png", "/home/lana/PycharmProjects/Risk-Generation/parameters/results_risk_generation_" + str(
+            self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate.txt", "parameters/results_risk_generation_" + str(
             self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
             self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate/")
 
-        generations = os.listdir("/home/lana/PycharmProjects/Risk-Generation/parameters")
+        shutil.move("fitness_" + str(
+            self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
+            self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate.png", "parameters/results_risk_generation_" + str(
+            self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
+            self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate/")
+
+        generations = os.listdir("parameters")
         for generation in generations:
             if generation.startswith("generation"):
-                shutil.move("/home/lana/PycharmProjects/Risk-Generation/parameters/" + generation,
-                            "/home/lana/PycharmProjects/Risk-Generation/parameters/results_risk_generation_" + str(
+                shutil.move("parameters/" + generation,
+                            "parameters/results_risk_generation_" + str(
                                 self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
                                 self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate/")
 
         # remove metrics files
-        metrics = os.listdir("/home/lana/PycharmProjects/Risk-Generation/metrics")
+        metrics = os.listdir("metrics/")
         for metric in metrics:
             if metric.startswith("game"):
-                os.remove("/home/lana/PycharmProjects/Risk-Generation/metrics/" + metric)
+                os.remove("metrics/" + metric)
 
     def plotFitness(self):
         # plot all fitness along generations, with min, max and average
@@ -254,10 +255,12 @@ class Synthesis:
 
 
 if __name__ == "__main__":
-    for gen in range(10, 300, 20):
-        for off in range(5, 50, 5):
+    for gen in range(10, 301, 20):
+        for off in range(5, 51, 5):
             for tour in range(2, off-1, 2):
                 for mut in range(2, 9, 2):
                     mut = mut / 10
                     s = Synthesis(numGenerations=gen, numOffspring=off, tournamentSize=tour, mutationRate=mut)
                     s.gameGenerator()
+
+    Evaluate.evaluate()

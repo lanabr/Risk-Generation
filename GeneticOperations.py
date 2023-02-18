@@ -144,16 +144,23 @@ def mapCrossover(mapPath1, mapPath2):
         if i in newConnections[i]:
             newConnections[i].remove(i)
 
-    # if territory dont have any connections, remove it
-    for i in newConnections:
-        if len(i) == 0:
-            newConnections.remove(i)
-
     # check if connections are symmetric
     for i in range(len(newConnections)):
         for j in newConnections[i]:
+            if newConnections[j] is []:
+                newConnections[j].append(i)
             if i not in newConnections[j]:
                 newConnections[j].append(i)
+
+    # if territory dont have any connections, add a random one
+    for i in range(len(newConnections)):
+        if len(newConnections[i]) == 0:
+            listTerr = list(range(len(newConnections)))
+            listTerr.remove(i)
+            newTerr = random.choice(listTerr)
+
+            newConnections[i].append(newTerr)
+            newConnections[newTerr].append(i)
 
     territories = list(range(len(newConnections)))
 
@@ -226,6 +233,12 @@ def crossover(parents):
     return offspring, mapParts
 
 
+def getContinentFromTerritory(continents, possibleTerr):
+    for cont in continents:
+        if possibleTerr in cont:
+            return cont
+
+
 def mapMutation(mutation_rate, mapParts, mapNumber):
     random.seed(time())
 
@@ -246,10 +259,13 @@ def mapMutation(mutation_rate, mapParts, mapNumber):
         terr1 = random.randint(0, len(connections) - 1)
         terr2 = random.choice(connections[terr1])
 
-        if terr2 in connections[terr1]:
-            connections[terr1].remove(int(terr2))
-            if terr1 in connections[terr2]:
-                connections[terr2].remove(int(terr1))
+        if len(connections[terr1]) > 1 and len(connections[terr2]) > 1:
+            if terr2 in connections[terr1]:
+                connections[terr1].remove(int(terr2))
+                if terr1 in connections[terr2]:
+                    connections[terr2].remove(int(terr1))
+
+    #print("2 ", continents)
 
     if random.random() > mutation_rate:    # "Steal" a territory from a continent
         if len(continents) > 1:
@@ -258,16 +274,21 @@ def mapMutation(mutation_rate, mapParts, mapNumber):
             terrList = copy.copy(cont)
             while stoleTerr is False and len(terrList) > 0:
                 terr1 = random.choice(terrList)
+                #print(cont, terr1)
                 if len(connections[terr1]) < 1:
                     terrList.remove(terr1)
                     continue
                 possibleTerr = random.choice(connections[terr1])
+                contPossibleTerr = getContinentFromTerritory(continents, possibleTerr)
                 terrList.remove(terr1)
-                if possibleTerr not in cont:
+
+                if possibleTerr not in cont and len(contPossibleTerr) > 1:
                     stoleTerr = True
                     for c in continents:
                         c.remove(possibleTerr) if possibleTerr in c else None
                     cont.append(possibleTerr)
+
+    #print("3 ", continents)
 
     if random.random() > mutation_rate:    # Swap the value of two continents
         if len(continents) > 1:

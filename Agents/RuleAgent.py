@@ -24,6 +24,7 @@ class RuleAgent:
                 self.currentlyCapturingContinent = False
 
         else:
+            #print("3 ", gameState.map._continents)
             bestContinent = self.searchBestContinent(gameState)
             if bestContinent is not None:
                 self.currentlyCapturingContinent = True
@@ -58,6 +59,7 @@ class RuleAgent:
 
             if emptyContinent:
                 continentValue = gameState.map.continentsValue[continent[0]]
+                #print("2 ", gameState.map._continents)
                 continentYield = continentValue / len(gameState.map.getTerritoriesFromContinent(continent))
 
                 if continentYield > currentYield:
@@ -92,6 +94,7 @@ class RuleAgent:
         lowestTroop = 10000
         lowestTerr = None
 
+        #print("1 ", gameState.map._continents)
         for terr in gameState.map.getTerritoriesFromContinent(continent):
             if terr.numberOfTroops < lowestTroop:
                 lowestTroop = terr.numberOfTroops
