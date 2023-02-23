@@ -8,6 +8,7 @@ from AutomatedPlaytest import playtestNtimes
 import os
 import copy
 import Evaluate
+import math
 
 
 class Synthesis:
@@ -230,7 +231,7 @@ class Synthesis:
         avgFitness = []
         idealFitness = []
         worstFitness = []
-        x = range(len(self.allFitness))
+        x = range(1, len(self.allFitness) + 1)
 
         for gen in self.allFitness:
             maxFitness.append(max(gen))
@@ -255,12 +256,12 @@ class Synthesis:
 
 
 if __name__ == "__main__":
-    for gen in range(10, 301, 20):
+    for gen in range(30, 301, 20):
         for off in range(5, 51, 5):
-            for tour in range(2, off-1, 2):
+            for tour in range(2, math.floor(off/2)+1, 2):
                 for mut in range(2, 9, 2):
                     mut = mut / 10
                     s = Synthesis(numGenerations=gen, numOffspring=off, tournamentSize=tour, mutationRate=mut)
                     s.gameGenerator()
-
+                    
     Evaluate.evaluate()
