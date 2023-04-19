@@ -238,7 +238,7 @@ class Map:
         plt.clf()
         pos = nx.spring_layout(self.map)
 
-        plot = nx.draw_networkx_nodes(self.map, pos=pos,
+        nx.draw_networkx_nodes(self.map, pos=pos,
                                       node_color=occupationColors, edgecolors=continentColors,
                                       linewidths=2.0, node_size=550)
 
@@ -246,7 +246,8 @@ class Map:
         nx.draw_networkx_labels(self.map, pos=pos,
                                 labels=territoryLabels, font_size=9)
 
-        plt.show()
+        plt.savefig("map13655.png", bbox_inches='tight', dpi=100)
+        plt.draw()
         plt.pause(0.01)
 
     def isPlanarGraph(self):
@@ -255,6 +256,9 @@ class Map:
     def isConnectedGraph(self):
         return nx.is_connected(self.map)
 
+
+#mapa = Map("/home/lana/Documentos/results risk generation/result_190generations/results_risk_generation_190generations_50offspring_24tournamentsize_0.8mutationrate/map13655.json")
+#mapa.showMap()
 
 
 
