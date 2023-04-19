@@ -31,12 +31,46 @@ def calculateCriteria(gameParameters):
     return gameParameters.criteria
 
 
-def calculateFitness(gameParameters):
+def fitnessDistance(gameParameters):
     fitness = 0
     ideal = {"advantage": 0, "duration": 0, "drama": 0.5, "leadChange": 0.5, "branchingFactor": 0.5, "completion": 1, "killerMoves": 0.5}
 
-    for key in gameParameters.criteria:
+    #ideal = {"duration": 0, "drama": 0.5, "leadChange": 0.5, "branchingFactor": 0.5, "completion": 1, "killerMoves": 0.5}
+    #ideal = {"advantage": 0, "drama": 0.5, "leadChange": 0.5, "branchingFactor": 0.5, "completion": 1, "killerMoves": 0.5}
+    #ideal = {"advantage": 0, "duration": 0, "leadChange": 0.5, "branchingFactor": 0.5, "completion": 1, "killerMoves": 0.5}
+    #ideal = {"advantage": 0, "duration": 0, "drama": 0.5, "branchingFactor": 0.5, "completion": 1, "killerMoves": 0.5}
+    #ideal = {"advantage": 0, "duration": 0, "drama": 0.5, "leadChange": 0.5, "branchingFactor": 0.5, "killerMoves": 0.5}
+    #ideal = {"advantage": 0, "duration": 0, "drama": 0.5, "leadChange": 0.5, "branchingFactor": 0.5, "completion": 1,}
+    #ideal = {"advantage": 0, "duration": 0, "drama": 0.5, "leadChange": 0.5, "completion": 1, "killerMoves": 0.5}
+
+    for key in ideal:
         fitness += abs(gameParameters.criteria[key] - ideal[key])
+
+    return fitness
+
+
+def fitnessWeighted(gameParameters):
+    fitness = 0
+    weights = {"advantage": 0.2, "drama": 0.2, "duration": 0.15, "leadChange": 0.15, "completion": 0.15, "killerMoves": 0.1, "branchingFactor": 0.05}
+
+    #weights = {"drama": 0.25, "duration": 0.2, "leadChange": 0.15, "completion": 0.15, "killerMoves": 0.15, "branchingFactor": 0.1}
+    #weights = {"advantage": 0.25, "duration": 0.2, "leadChange": 0.15, "completion": 0.15, "killerMoves": 0.15, "branchingFactor": 0.1}
+    #weights = {"advantage": 0.25, "drama": 0.25, "leadChange": 0.15, "completion": 0.15, "killerMoves": 0.1, "branchingFactor": 0.1}
+    #weights = {"advantage": 0.25, "drama": 0.25, "duration": 0.15, "completion": 0.15, "killerMoves": 0.1, "branchingFactor": 0.1}
+    #weights = {"advantage": 0.25, "drama": 0.25, "duration": 0.15, "leadChange": 0.15, "killerMoves": 0.1, "branchingFactor": 0.1}
+    #weights = {"advantage": 0.25, "drama": 0.25, "duration": 0.15, "leadChange": 0.15, "completion": 0.15, "branchingFactor": 0.05}
+
+    #weights = {"advantage": 0.2, "drama": 0.2, "duration": 0.15, "leadChange": 0.15, "completion": 0.15, "killerMoves": 0.15}
+
+    for key in gameParameters.criteria:
+        fitness += weights[key] * gameParameters.criteria[key]
+
+    return fitness
+
+
+def calculateFitness(gameParameters):
+    fitness = fitnessDistance(gameParameters)
+    #fitness = fitnessWeighted(gameParameters)
 
     return fitness
 
