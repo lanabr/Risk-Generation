@@ -22,8 +22,8 @@ class Synthesis:
 
     def gameGenerator(self):
         print("------------ Generating games with " + str(self.numGenerations) + " generations, " + str(
-            self.numOffspring) + " offspring per generation and " + str(
-            self.tournamentSize) + " tournament size ------------")
+            self.numOffspring) + " offspring per generation,  " + str(self.tournamentSize) +
+            " tournament size and" + str(self.mutationRate) + " mutation rate --------------")
         print("Creating initial population")
         self.createPopulation()
 
@@ -256,12 +256,33 @@ class Synthesis:
 
 
 if __name__ == "__main__":
-    for gen in range(30, 301, 20):
-        for off in range(5, 51, 5):
-            for tour in range(2, math.floor(off/2)+1, 2):
-                for mut in range(2, 9, 2):
-                    mut = mut / 10
-                    s = Synthesis(numGenerations=gen, numOffspring=off, tournamentSize=tour, mutationRate=mut)
-                    s.gameGenerator()
-                    
-    Evaluate.evaluate()
+    #s = Synthesis(numGenerations=10, numOffspring=25, tournamentSize=8, mutationRate=0.8)
+    #s.gameGenerator()
+
+    #s = Synthesis(numGenerations=30, numOffspring=35, tournamentSize=6, mutationRate=0.8)
+    #s.gameGenerator()
+
+    #s = Synthesis(numGenerations=90, numOffspring=45, tournamentSize=20, mutationRate=0.6)
+    #s.gameGenerator()
+
+    #s = Synthesis(numGenerations=30, numOffspring=45, tournamentSize=2, mutationRate=0.6)
+    #s.gameGenerator()
+
+    #s = Synthesis(numGenerations=150, numOffspring=50, tournamentSize=6, mutationRate=0.4)
+    #s.gameGenerator()
+
+    #s = Synthesis(numGenerations=150, numOffspring=20, tournamentSize=6, mutationRate=0.8)
+    #s.gameGenerator()
+
+    #s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=8, mutationRate=0.6)
+    #s.gameGenerator()
+
+    #s = Synthesis(numGenerations=50, numOffspring=50, tournamentSize=16, mutationRate=0.6)
+    #s.gameGenerator()
+
+    #s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1)
+    #s.gameGenerator()
+
+    s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6)
+    s.gameGenerator()
+

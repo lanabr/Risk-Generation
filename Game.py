@@ -1,6 +1,7 @@
 from Structures.PlayerID import PlayerID
 from Structures.ValidPlayerColors import ValidPlayerColors
 from Agents.RuleAgent import RuleAgent
+from Agents.HumanPlayer import HumanPlayer
 from Parameters import Parameters
 from Heuristics import Heuristic
 from GameState import GameState
@@ -76,6 +77,10 @@ class Game:
 
         beginTime = time()
 
+        if self.showActions:
+            print("Iniciando jogo")
+            print("Fase de alocação de tropas")
+
         while self.gameState.gamePhase != GamePhase.GAME_OVER:
             if self.showActions:
                 self.gameState.map.showMap()
@@ -115,7 +120,7 @@ class Game:
                     print(heuristicResult[1][0].playerID.playerName + ": " + str(totalP2))
                     print()
 
-            if self.gameState.turnCount > maxNumberOfTurns or (time() - beginTime) > maxNumberOfSeconds:
+            if self.gameState.turnCount > maxNumberOfTurns:
                 tieFlag = 1
                 break
 
@@ -159,12 +164,20 @@ class Game:
 
     def playAllocationPhase(self, player):
         action = None
+        random.seed()
 
         if self.parameters.initialTerritoriesMode == "random":
             territoryChosen = random.choice(self.gameState.map.neutralTerritories)
             action = Action.AllocationAction(territoryChosen.territoryId, player.playerID)
+
+            if self.showActions:
+                print("Território escolhido de forma ateatória: " + str(action.territoryidToConquer) + " para o jogador " + str(action.playerID.playerName))
+
         elif self.parameters.initialTerritoriesMode == "pick":
             action = player.playAllocation(self.gameState)
+
+            if self.showActions:
+                print("Território escolhido pelo jogador " + str(action.playerID.playerName) + ": " + str(action.territoryidToConquer))
 
         self.gameState.takeAction(action)
 
@@ -224,7 +237,7 @@ if __name__ == "__main__":
     agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
     agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
 
-    game = Game(showActions=False, parameters=Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map6.json", 3, "attack", "pick", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map6.json", 3, 3, "random", "min"), listOfPlayers=[agent1, agent2])
 
     game.playtest()
 '''

@@ -23,8 +23,8 @@ def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCo
 
 
 '''
-game = Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map125.json", 3, "defense", "random", "max")
+game = Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map6.json", 2, 2, "random", "min")
 playtestNtimes(game)
-run("/home/lana/PycharmProjects/Risk-Generation/metrics/game3-defense-random-max.txt")
+run("/home/lana/PycharmProjects/Risk-Generation/metrics/game3-2-random-min.txt")
 #os.remove("metrics/game3-attack-pick-min.txt")
 '''
