@@ -24,7 +24,6 @@ class RuleAgent:
                 self.currentlyCapturingContinent = False
 
         else:
-            #print("3 ", gameState.map._continents)
             bestContinent = self.searchBestContinent(gameState)
             if bestContinent is not None:
                 self.currentlyCapturingContinent = True
