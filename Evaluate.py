@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import Map as mp
 import json
+import numpy as np
 from Parameters import Parameters
 from AutomatedPlaytest import playtestNtimes
 from GeneticOperations import calculateCriteria
@@ -54,10 +55,11 @@ def best_fitness():
 
     plt.clf()
     fig, ax = plt.subplots()
-    plt.barh(range(10), top10Fitness)
+    plt.barh(range(1, 11), top10Fitness)
     plt.xlabel("Fitness")
     plt.ylabel("Execução")
     plt.title("10 melhores valores de fitness")
+    plt.yticks(range(1, 11), range(1, 11))
     rects = ax.patches
 
     for rect in rects:
@@ -118,14 +120,15 @@ def fitnessPerGeneration():
     allLines.append("Best generation: " + str(gen[minFitness.index(min(minFitness))]) + "\n")
 
     plt.clf()
+
     plt.plot(gen, avgFitness, label="Avg")
-    plt.plot(gen, minFitness, label="Min")
+    plt.bar(gen, minFitness, width=7, color='red', label="Min")
     plt.xticks(list(range(10, 200, 20)), gen)
     plt.legend(loc="upper right")
-    plt.xlabel("Gerações")
+    plt.xlabel("Generations")
     plt.ylabel("Fitness")
-    plt.title("Fitness ao longo das gerações")
-    plt.savefig("results/fitness_along_generations.png")
+    plt.title("Fitness for each value of generations")
+    plt.savefig("results/fitness_along_generations.pdf")
 
     with open("results/fitnessPerGeneration.txt", 'w') as fl:
         fl.writelines(allLines)
@@ -172,13 +175,13 @@ def fitnessPerOffspring():
 
     plt.clf()
     plt.plot(off, avgFitness, label="Avg")
-    plt.plot(off, minFitness, label="Min")
+    plt.bar(off, minFitness, width=1.8, color='red', label="Min")
     plt.xticks(list(range(5, 51, 5)), off)
     plt.legend(loc="upper right")
-    plt.xlabel("População")
+    plt.xlabel("Offspring size")
     plt.ylabel("Fitness")
-    plt.title("Fitness ao longo do número de população")
-    plt.savefig("results/fitness_along_offspring.png")
+    plt.title("Fitness for each value of offspring size")
+    plt.savefig("results/fitness_along_offspring.pdf")
 
     with open("results/fitnessPerOffspring.txt", 'w') as fl:
         fl.writelines(allLines)
@@ -225,13 +228,13 @@ def fitnessPerTournamentSize():
 
     plt.clf()
     plt.plot(tour, avgFitness, label="Avg")
-    plt.plot(tour, minFitness, label="Min")
+    plt.bar(tour, minFitness, width=0.9, color='red', label="Min")
     plt.xticks(list(range(2, 25, 2)), tour)
     plt.legend(loc="upper right")
-    plt.xlabel("Torneio")
+    plt.xlabel("Tournament size")
     plt.ylabel("Fitness")
-    plt.title("Fitness ao longo do número de participantes no torneio")
-    plt.savefig("results/fitness_along_tournament_size.png")
+    plt.title("Fitness for each value of tournament size")
+    plt.savefig("results/fitness_along_tournament_size.pdf")
 
     with open("results/fitnessPerTournamentSize.txt", 'w') as fl:
         fl.writelines(allLines)
@@ -283,13 +286,13 @@ def fitnessPerMutationRate():
 
     plt.clf()
     plt.plot(mut, avgFitness, label="Avg")
-    plt.plot(mut, minFitness, label="Min")
+    plt.bar(mut, minFitness, width=0.03, color='red', label="Min")
     plt.xticks(mut, mut)
     plt.legend(loc="upper right")
-    plt.xlabel("Taxa de mutação")
+    plt.xlabel("Mutation rate")
     plt.ylabel("Fitness")
-    plt.title("Fitness ao longo dos valores de taxa de mutação")
-    plt.savefig("results/fitness_along_mutation_rate.png")
+    plt.title("Fitness for each value of mutation rate")
+    plt.savefig("results/fitness_along_mutation_rate.pdf")
 
     with open("results/fitnessPerMutationRate.txt", 'w') as fl:
         fl.writelines(allLines)
@@ -400,17 +403,19 @@ def riskAndWarCriteria():
 def riskToWar():
     war = Parameters("parameters/warmap.json", 2, 3, "random", "min")
 
-    folders = os.listdir("results")
+    folders = os.listdir("parameters")
     resultFolders = []
 
     for folder in folders:
         if folder.startswith('results'):
-            resultFolders.append("results/" + folder)
+            resultFolders.append("parameters/" + folder)
 
     allLines = []
 
     for folder in resultFolders:
         files = os.listdir(folder + "/")
+        allLines.append("\n")
+        allLines.append(folder)
 
         genFiles = [file if file.startswith("generation") or file.startswith("result") else None for file in files]
         genFiles = [file for file in genFiles if file is not None]
@@ -519,15 +524,10 @@ def parameterStatistics():
         with open(file, 'r') as f:
             allText = f.readlines()
 
-            for line in allText:
-                if line.startswith("troopsWonBeginTurn"):
-                    allTroopsWonBeginTurn.append(int(line.split(":")[1]))
-                elif line.startswith("defenseDices"):
-                    allDefenseDices.append(int(line.split(":")[1]))
-                elif line.startswith("initialTerritoriesMode"):
-                    allInitialTerritoriesMode.append(line.split(":")[1].strip())
-                elif line.startswith("troopsToNewTerritory"):
-                    allTroopsToNewTerritory.append(line.split(":")[1].strip())
+            allTroopsWonBeginTurn.append(int(allText[5].split(":")[1]))
+            allDefenseDices.append(int(allText[6].split(":")[1]))
+            allInitialTerritoriesMode.append(allText[7].split(":")[1].strip())
+            allTroopsToNewTerritory.append(allText[8].split(":")[1].strip())
 
     allLines = []
 
@@ -564,6 +564,7 @@ def territoryStatistics():
             resultFolders.append("/home/lana/Documentos/results risk generation/" + folder)
 
     allTerritories = []
+    twoTerritories = []
 
     for folder in resultFolders:
         subfolder = os.listdir(folder)
@@ -574,19 +575,20 @@ def territoryStatistics():
                     with open(folder + "/" + f + "/" + file, 'r') as fl:
                         allText = fl.readlines()
 
-                        for line in allText:
-                            if line.startswith("Map"):
-                                l = line.split(" ")[2]
-                                map = l.split("/")[1]
+                        l = allText[4].split(" ")[2]
+                        map = l.split("/")[1]
 
-                                if int(map.split(".")[0].split("p")[1]) <= 10:
-                                    fd1 = "parameters/" + map
-                                else:
-                                    fd1 = folder + "/" + f + "/" + map
+                        if int(map.split(".")[0].split("p")[1]) <= 10:
+                            fd1 = "parameters/" + map
+                        else:
+                            fd1 = folder + "/" + f + "/" + map
 
-                                allMap = open(fd1, 'r')
-                                mapa = json.load(allMap)
-                                allTerritories.append(mapa["territories"][-1])
+                        allMap = open(fd1, 'r')
+                        mapa = json.load(allMap)
+                        allTerritories.append(mapa["territories"][-1] + 1)
+                        if allTerritories[-1] == 3:
+                            twoTerritories.append(folder + "/" + f + "/" + map)
+
 
     allLines = []
 
@@ -595,11 +597,422 @@ def territoryStatistics():
     allLines.append("Max: " + str(max(allTerritories)) + "\n")
     allLines.append("Average: " + str(sum(allTerritories)/len(allTerritories)) + "\n")
 
+    all10 = 0
+    for ter in allTerritories:
+        if ter <= 10:
+            all10 += 1
+
+    allLines.append("Até 10 territórios: " + str(all10) + "\n")
+
+    allLines.append("Two Territories Folders\n")
+    for folder in twoTerritories:
+        allLines.append(folder + "\n")
+
+    allLines.append("All Territories:\n")
+    for ter in allTerritories:
+        allLines.append(str(ter) + "\n")
+
     with open("results/territoryStatistics.txt", 'w') as fl:
         fl.writelines(allLines)
 
 
+def newGraphics():
+    # gerar os graficos de cada pasta de novo mas com titulo e legenda em portugues
+
+    resultFolders = [
+                     #"/home/lana/Documentos/results risk generation/result_10generations",
+                     #"/home/lana/Documentos/results risk generation/result_30generations",
+                     #"/home/lana/Documentos/results risk generation/result_50generations",
+                     #"/home/lana/Documentos/results risk generation/result_70generations",
+                     #"/home/lana/Documentos/results risk generation/result_90generations",
+                     #"/home/lana/Documentos/results risk generation/result_110generations",
+                     #"/home/lana/Documentos/results risk generation/result_150generations",
+                     #"/home/lana/Documentos/results risk generation/result_170generations",
+                     #"/home/lana/Documentos/results risk generation/result_130generations"
+                     #"/home/lana/Documentos/results risk generation/result_190generations"
+                    ]
+
+    for folder in resultFolders:
+        subfolder = os.listdir(folder)
+        print(folder)
+
+        for f in subfolder:
+            files = os.listdir(folder + "/" + f)
+            allFitness = []
+            for file in files:
+                if file.startswith('generation'):
+                    allFitness.append([])
+            allFitness.append([])
+            for file in files:
+                if file.startswith('generation'):
+                    with open(folder + "/" + f + "/" + file, 'r') as fl:
+                        allText = fl.readlines()
+                        for line in allText:
+                            if line.startswith("Fitness"):
+                                index = int(file.split("generation")[1].split(".")[0]) - 1
+                                allFitness[index].append(float(line.split(":")[1].strip()))
+                if file.startswith('result'):
+                    with open(folder + "/" + f + "/" + file, 'r') as fl:
+                        allText = fl.readlines()
+                        for line in allText:
+                            if line.startswith("Fitness"):
+                                allFitness[-1].append(float(line.split(":")[1].strip()))
+
+            maxFitness = []
+            minFitness = []
+            avgFitness = []
+            idealFitness = []
+            worstFitness = []
+            x = range(0, len(allFitness))
+
+            for gen in allFitness:
+                maxFitness.append(max(gen))
+                minFitness.append(min(gen))
+                avgFitness.append(sum(gen) / len(gen))
+                idealFitness.append(0)
+                worstFitness.append(5)
+
+            plt.clf()
+            plt.plot(x, worstFitness, label="Worst")
+            plt.plot(x, maxFitness, label="Max")
+            plt.plot(x, avgFitness, label="Avg")
+            plt.plot(x, minFitness, label="Min")
+            plt.plot(x, idealFitness, label="Ideal")
+            plt.legend(loc="upper right")
+            plt.xlabel("Generations")
+            plt.ylabel("Fitness")
+            plt.title("Fitness along generations")
+
+            numGenerations = f.split("_")[3].split("generations")[0]
+            numOffspring = f.split("_")[4].split("offspring")[0]
+            tournamentSize = f.split("_")[5].split("tournament")[0]
+            mutationRate = f.split("_")[6].split("mutation")[0]
+
+            plt.savefig(folder + "/" + f + "/" +
+                "fitness3_" + str(numGenerations) + "generations_" + str(numOffspring) + "offspring_" + str(
+                    tournamentSize) + "tournamentsize_" + str(mutationRate) + "mutationrate.pdf")
+            plt.show()
+
+
+def diffFitness():
+    folders = os.listdir("/home/lana/Documentos/results risk generation")
+    resultFolders = []
+
+    for folder in folders:
+        if folder.startswith('result'):
+            resultFolders.append("/home/lana/Documentos/results risk generation/" + folder)
+
+    resultFiles = []
+
+    for folder in resultFolders:
+        subfolder = os.listdir(folder)
+        for f in subfolder:
+            files = os.listdir(folder + "/" + f)
+            for file in files:
+                if file.startswith('result'):
+                    resultFiles.append(folder + "/" + f + "/" + file)
+
+    allFitness = []
+    allAdvantage = []
+    allDuration = []
+    allDrama = []
+    allLeadChange = []
+    allBranchingfactor = []
+    allCompletion = []
+    allKillerMoves = []
+
+    for file in resultFiles:
+        with open(file, 'r') as f:
+            allText = f.readlines()
+
+            allFitness.append(float(allText[2].split(":")[1]))
+            allAdvantage.append(float(allText[10].split(":")[1]))
+            allDuration.append(float(allText[11].split(":")[1]))
+            allDrama.append(float(allText[12].split(":")[1]))
+            allLeadChange.append(float(allText[13].split(":")[1]))
+            allBranchingfactor.append(float(allText[14].split(":")[1]))
+            allCompletion.append(float(allText[15].split(":")[1]))
+            allKillerMoves.append(float(allText[16].split(":")[1]))
+
+    allLines = []
+
+    allLines.append("Difference in criteria values")
+
+    for i in range(len(allFitness)):
+        allLines.append("Fitness: " + str(allFitness[i]) + "\n")
+        diffAdvantage = abs(allAdvantage[i] - 0)
+        diffDuration = abs(allDuration[i] - 0)
+        diffDrama = abs(allDrama[i] - 0.5)
+        diffLeadChange = abs(allLeadChange[i] - 0.5)
+        diffBranchingFactor = abs(allBranchingfactor[i] - 0.5)
+        diffCompletion = abs(allCompletion[i] - 1)
+        diffKillerMoves = abs(allKillerMoves[i] - 0.5)
+
+        diffs = [diffAdvantage, diffDuration, diffDrama, diffLeadChange, diffBranchingFactor, diffCompletion, diffKillerMoves]
+
+        allLines.append("Bigger difference: \n")
+        if max(diffs) == diffAdvantage:
+            allLines.append("Advantage: " + str(diffAdvantage) + "\n")
+            diffs.remove(diffAdvantage)
+        elif max(diffs) == diffDrama:
+            allLines.append("Drama: " + str(diffDrama) + "\n")
+            diffs.remove(diffDrama)
+        elif max(diffs) == diffLeadChange:
+            allLines.append("Lead Change: " + str(diffLeadChange) + "\n")
+            diffs.remove(diffLeadChange)
+        elif max(diffs) == diffBranchingFactor:
+            allLines.append("Branching Factor: " + str(diffBranchingFactor) + "\n")
+            diffs.remove(diffBranchingFactor)
+        elif max(diffs) == diffCompletion:
+            allLines.append("Completion: " + str(diffCompletion) + "\n")
+            diffs.remove(diffCompletion)
+        elif max(diffs) == diffKillerMoves:
+            allLines.append("Killer Moves: " + str(diffKillerMoves) + "\n")
+            diffs.remove(diffKillerMoves)
+        elif max(diffs) == diffDuration:
+            allLines.append("Duration: " + str(diffDuration) + "\n")
+            diffs.remove(diffDuration)
+
+        '''
+        if max(diffs) == diffAdvantage:
+            allLines.append("Advantage: " + str(diffAdvantage) + "\n")
+        elif max(diffs) == diffDuration:
+            allLines.append("Duration: " + str(diffDuration) + "\n")
+        elif max(diffs) == diffDrama:
+            allLines.append("Drama: " + str(diffDrama) + "\n")
+        elif max(diffs) == diffLeadChange:
+            allLines.append("Lead Change: " + str(diffLeadChange) + "\n")
+        elif max(diffs) == diffBranchingFactor:
+            allLines.append("Branching Factor: " + str(diffBranchingFactor) + "\n")
+        elif max(diffs) == diffCompletion:
+            allLines.append("Completion: " + str(diffCompletion) + "\n")
+        elif max(diffs) == diffKillerMoves:
+            allLines.append("Killer Moves: " + str(diffKillerMoves) + "\n")
+        '''
+
+    with open("results/diffCriteriaFitness.txt", 'w') as fl:
+        fl.writelines(allLines)
+
+
+def mapCentrality():
+    folders = os.listdir("/home/lana/Documentos/results risk generation")
+    resultFolders = []
+
+    for folder in folders:
+        if folder.startswith('result'):
+            resultFolders.append("/home/lana/Documentos/results risk generation/" + folder)
+
+    degreeCentrality = []
+    betweennessCentrality = []
+    territories = []
+    fitness = []
+    bottleneck = []
+    nameMaps = []
+
+    for folder in resultFolders:
+        subfolder = os.listdir(folder)
+        for f in subfolder:
+            files = os.listdir(folder + "/" + f)
+            for file in files:
+                if file.startswith('result'):
+                    with open(folder + "/" + f + "/" + file, 'r') as fl:
+                        allText = fl.readlines()
+
+                        l = allText[4].split(" ")[2]
+                        map = l.split("/")[1]
+
+                        if int(map.split(".")[0].split("p")[1]) <= 10:
+                            fd1 = "parameters/" + map
+                        else:
+                            fd1 = folder + "/" + f + "/" + map
+
+                        allMap = open(fd1, 'r')
+                        mapa = json.load(allMap)
+                        mapaClass = mp.Map(fd1)
+
+                        fitness.append(float(allText[2].split(":")[1]))
+                        territories.append(mapa["territories"][-1] + 1)
+
+                        degree = nx.degree_centrality(mapaClass.map)
+                        degreeCentrality.append(sum(degree.values())/len(degree))
+
+                        betweenness = nx.betweenness_centrality(mapaClass.map)
+                        betweennessCentrality.append(sum(betweenness.values())/len(betweenness))
+
+                        bottleneck.append(max(betweenness.values()))
+                        nameMaps.append(fd1)
+
+    plt.clf()
+    plt.scatter(territories, bottleneck)
+    plt.ylabel("Highest bottleneck")
+    plt.xlabel("Territories")
+    plt.savefig("results/bottleneckPerTerritories.png")
+
+    plt.clf()
+    plt.scatter(territories, degreeCentrality)
+    plt.ylabel("Degree Centrality")
+    plt.xlabel("Territories")
+    plt.savefig("results/degreePerTerritories.png")
+
+    plt.clf()
+    plt.scatter(territories, betweennessCentrality)
+    plt.ylabel("Betweenness Centrality")
+    plt.xlabel("Territories")
+    plt.savefig("results/betweennessPerTerritories.png")
+
+    plt.clf()
+    plt.scatter(fitness, degreeCentrality)
+    plt.ylabel("Degree Centrality")
+    plt.xlabel("Fitness")
+    plt.savefig("results/degreePerFitness.png")
+
+    plt.clf()
+    plt.scatter(fitness, betweennessCentrality)
+    plt.ylabel("Betweenness Centrality")
+    plt.xlabel("Fitness")
+    plt.savefig("results/betweennessPerFitness.png")
+
+    plt.clf()
+    plt.scatter(territories, fitness)
+    plt.xlabel("Territories")
+    plt.ylabel("Fitness")
+    plt.savefig("results/territoriesFitness.png")
+
+
+def newFitness():
+    folders = os.listdir("/home/lana/Documentos/results risk generation/new criteria")
+    resultFolders = []
+
+    for folder in folders:
+        if folder.startswith('results'):
+            resultFolders.append("/home/lana/Documentos/results risk generation/new criteria/" + folder)
+
+    allLines = []
+
+    for folder in resultFolders:
+        files = os.listdir(folder)
+        sum = 0
+        criteria = []
+        for file in files:
+            if file.startswith('result'):
+                with open(folder + "/" + file, 'r') as f:
+                    allText = f.readlines()
+
+                    allLines.append(folder + "\n")
+                    allLines.append("Fitness: " + allText[2].split(":")[1])
+                    allLines.append("New Fitness: ")
+
+                    if "advantage" in folder:
+                        sum += 0
+                        criteria.append("advantage")
+                    if "duration" in folder:
+                        sum += 0
+                        criteria.append("duration")
+                    if "drama" in folder:
+                        sum += 0.5
+                        criteria.append("drama")
+                    if "leadChange" in folder:
+                        sum += 0.5
+                        criteria.append("leadChange")
+                    if "branchingFactor" in folder:
+                        sum += 0.5
+                        criteria.append("branchingFactor")
+                    if "completion" in folder:
+                        sum += 1
+                        criteria.append("completion")
+                    if "killerMoves" in folder:
+                        sum += 0.5
+                        criteria.append("killerMoves")
+
+                    fitness = allText[2].split(":")[1]
+                    result = (float(fitness[1:-2]) * 5.0) / sum
+                    allLines.append(str(result) + "\n\n")
+
+    with open("results/newFitness.txt", 'w') as fl:
+        fl.writelines(allLines)
+
+
+def avgExec():
+    folders = os.listdir("/home/lana/Documentos/results risk generation/execs")
+    resultFolders = []
+
+    for folder in folders:
+        if folder.startswith('results'):
+            resultFolders.append("/home/lana/Documentos/results risk generation/execs/" + folder)
+
+    execs = []
+
+    for folder in resultFolders:
+        execs.append(folder[:-1])
+
+    uniqueExecs = list(set(execs))
+
+    execsFitness = []
+
+    for exec in uniqueExecs:
+        execsFitness.append([])
+
+    for folder in resultFolders:
+        files = os.listdir(folder)
+        sum = 0
+        criteria = []
+        for file in files:
+            if file.startswith('result'):
+                with open(folder + "/" + file, 'r') as f:
+                    allText = f.readlines()
+
+                    if "advantage" in folder:
+                        sum += 0
+                        criteria.append("advantage")
+                    if "duration" in folder:
+                        sum += 0
+                        criteria.append("duration")
+                    if "drama" in folder:
+                        sum += 0.5
+                        criteria.append("drama")
+                    if "leadChange" in folder:
+                        sum += 0.5
+                        criteria.append("leadChange")
+                    if "branchingFactor" in folder:
+                        sum += 0.5
+                        criteria.append("branchingFactor")
+                    if "completion" in folder:
+                        sum += 1
+                        criteria.append("completion")
+                    if "killerMoves" in folder:
+                        sum += 0.5
+                        criteria.append("killerMoves")
+
+                    fitness = allText[2].split(":")[1]
+                    result = (float(fitness[1:-2]) * 5.0) / sum
+                    execsFitness[uniqueExecs.index(folder[:-1])].append(result)
+
+    allLines = []
+
+    for i in range(len(uniqueExecs)):
+        allLines.append(uniqueExecs[i] + "\n")
+        allLines.append("Average: " + str(math.fsum(execsFitness[i]) / len(execsFitness[i])) + "\n")
+        allLines.append("Std: " + str(np.std(execsFitness[i])) + "\n")
+        allLines.append("Fitness: " + str(execsFitness[i]) + "\n\n")
+
+        plt.clf()
+        plt.bar(range(1, len(execsFitness[i])+1), execsFitness[i], width=0.3)
+        plt.plot(range(1, len(execsFitness[i])+1), [math.fsum(execsFitness[i]) / len(execsFitness[i])] * len(execsFitness[i]), color='red')
+        plt.plot(range(1, len(execsFitness[i])+1), [math.fsum(execsFitness[i]) / len(execsFitness[i]) + np.std(execsFitness[i])] * len(execsFitness[i]), color='green')
+        plt.plot(range(1, len(execsFitness[i])+1), [math.fsum(execsFitness[i]) / len(execsFitness[i]) - np.std(execsFitness[i])] * len(execsFitness[i]), color='green')
+        plt.title(uniqueExecs[i].split("/")[-1])
+        plt.xlabel("Execs")
+        plt.ylabel("Fitness")
+
+        plt.savefig("results/" + uniqueExecs[i].split("/")[-1] + ".png")
+        plt.show()
+
+    with open("results/newExecsFitness.txt", 'w') as fl:
+        fl.writelines(allLines)
+
+
 def evaluate():
+    pass
     #print("Best fitness----------------------------------------------------------------")
     #best_fitness()
     #print()
@@ -624,8 +1037,8 @@ def evaluate():
     #print("Risk and War Criteria-------------------------------------------------------")
     #riskAndWarCriteria()
     #print()
-    print("Risk to War-----------------------------------------------------------------")
-    riskToWar()
+    #print("Risk to War-----------------------------------------------------------------")
+    #riskToWar()
     #print()
     #print("Parameter statistics--------------------------------------------------------")
     #parameterStatistics()
@@ -633,5 +1046,21 @@ def evaluate():
     #print("Territory Statistics--------------------------------------------------------")
     #territoryStatistics()
     #print()
+    #print("New graphics-----------------------------------------------------------------")
+    #newGraphics()
+    #print()
+    #print("Diff fitness-----------------------------------------------------------------")
+    #diffFitness()
+    #print()
+    #print("Map Centrality--------------------------------------------------------------")
+    #mapCentrality()
+    #print()
+    #print("New Fitness-----------------------------------------------------------------")
+    #newFitness()
+    #print()
+    #print("Avg Exec--------------------------------------------------------------------")
+    #avgExec()
+    print()
 
-#evaluate()
+
+evaluate()
