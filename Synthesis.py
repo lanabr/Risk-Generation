@@ -7,18 +7,21 @@ from Parameters import Parameters
 from AutomatedPlaytest import playtestNtimes
 import os
 import copy
-import Evaluate
+from Evaluate import evaluate
 import math
 
 
 class Synthesis:
-    def __init__(self, numGenerations, numOffspring, tournamentSize, mutationRate):
+    def __init__(self, numGenerations, numOffspring, tournamentSize, mutationRate, criteria, run):
         self.population = []
         self.numGenerations = numGenerations
         self.numOffspring = numOffspring
         self.tournamentSize = tournamentSize
         self.mutationRate = mutationRate
         self.allFitness = []
+
+        self.criteria = criteria
+        self.run = run
 
     def gameGenerator(self):
         print("------------ Generating games with " + str(self.numGenerations) + " generations, " + str(
@@ -81,7 +84,7 @@ class Synthesis:
             self.allFitness.append([])
 
         for gameParam in self.population:
-            gameParam.fitness = op.calculateFitness(gameParam)
+            gameParam.fitness = op.calculateFitness(gameParam, self.criteria)
             self.allFitness[geracao].append(gameParam.fitness)
 
         self.population.sort(key=lambda x: x.fitness)
@@ -185,37 +188,34 @@ class Synthesis:
 
     def moveFiles(self):
         maps = os.listdir("parameters/")
-        os.mkdir("parameters/results_risk_generation_" + str(self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate")
+        equalPart = str(self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
+            self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate"
+        path = "parameters/results_risk_generation_" + equalPart
+
+        for crit in self.criteria:
+            path += "_" + crit
+
+        path += str(self.run)
+
+        os.mkdir(path)
 
         for map in maps:
             if map.startswith("map") and map.endswith(".json") and map not in ["map1.json", "map2.json", "map3.json",
                                                                                "map4.json", "map5.json", "map6.json",
                                                                                "map7.json", "map8.json", "map9.json",
                                                                                "map10.json"]:
-                shutil.move("parameters/" + map,
-                            "parameters/results_risk_generation_" + str(
-                                self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
-                                self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate/")
+                shutil.move("parameters/" + map, path + "/")
 
-        shutil.move("results_risk_generation_" + str(
-            self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
-            self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate.txt", "parameters/results_risk_generation_" + str(
-            self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
-            self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate/")
 
-        shutil.move("fitness_" + str(
-            self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
-            self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate.png", "parameters/results_risk_generation_" + str(
-            self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
-            self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate/")
+
+        shutil.move("results_risk_generation_" + equalPart + ".txt", path + "/")
+
+        shutil.move("fitness_" + equalPart + ".png", path + "/")
 
         generations = os.listdir("parameters")
         for generation in generations:
             if generation.startswith("generation"):
-                shutil.move("parameters/" + generation,
-                            "parameters/results_risk_generation_" + str(
-                                self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
-                                self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate/")
+                shutil.move("parameters/" + generation, path + "/")
 
         # remove metrics files
         metrics = os.listdir("metrics/")
@@ -283,6 +283,37 @@ if __name__ == "__main__":
     #s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1)
     #s.gameGenerator()
 
-    s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6)
-    s.gameGenerator()
+
+
+    for i in range(10):
+        s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6, criteria=["completion", "drama", "branchingFactor"], run=i)
+        s.gameGenerator()
+
+        s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6, criteria=["leadChange", "drama", "killerMoves"], run=i)
+        s.gameGenerator()
+
+        s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6, criteria=["completion", "leadChange", "branchingFactor"], run=i)
+        s.gameGenerator()
+
+        s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6, criteria=["completion", "drama", "leadChange", "killerMoves"], run=i)
+        s.gameGenerator()
+
+        s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6, criteria=["completion", "killerMoves", "branchingFactor"], run=i)
+        s.gameGenerator()
+
+        s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1, criteria=["completion", "drama", "branchingFactor"], run=i)
+        s.gameGenerator()
+
+        s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1, criteria=["leadChange", "drama", "killerMoves"], run=i)
+        s.gameGenerator()
+
+        s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1, criteria=["completion", "leadChange", "branchingFactor"], run=i)
+        s.gameGenerator()
+
+        s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1, criteria=["completion", "drama", "leadChange", "killerMoves"], run=i)
+        s.gameGenerator()
+
+        s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1, criteria=["completion", "killerMoves", "branchingFactor"], run=i)
+        s.gameGenerator()
+
 

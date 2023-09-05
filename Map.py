@@ -246,7 +246,7 @@ class Map:
         nx.draw_networkx_labels(self.map, pos=pos,
                                 labels=territoryLabels, font_size=9)
 
-        plt.savefig("map13655.png", bbox_inches='tight', dpi=100)
+        #plt.savefig("map13655.pdf", bbox_inches='tight', dpi=100)
         plt.draw()
         plt.pause(0.01)
 
@@ -257,7 +257,7 @@ class Map:
         return nx.is_connected(self.map)
 
 
-#mapa = Map("/home/lana/Documentos/results risk generation/result_190generations/results_risk_generation_190generations_50offspring_24tournamentsize_0.8mutationrate/map13655.json")
+#mapa = Map("/home/lana/PycharmProjects/Risk-Generation/parameters/map6.json")
 #mapa.showMap()
 
 

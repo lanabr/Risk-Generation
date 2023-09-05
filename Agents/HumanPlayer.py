@@ -9,7 +9,7 @@ class HumanPlayer:
     def playAllocation(self, gameState):
         gameMap = gameState.map
 
-        print("Escolha um terriorio para colocar um exército, territórios disponíveis: ")
+        print("Escolha um território para colocar um exército, territórios disponíveis: ")
 
         territories = []
 
@@ -87,20 +87,22 @@ class HumanPlayer:
         return action
 
     def playExchangeCards(self, gameState):
-        print("Você tem " + str(gameState.cards) + " cartas para trocar. Escolha 3 cartas para trocar, cartas disponíveis: ")
+        print("Você tem " + str(len(self.cards)) + " cartas para trocar. Escolha 3 cartas para trocar, cartas disponíveis: ")
 
-        for card in self.cards:
-            print("Carta 0: ", card.territory, card.design, end=" ")
+        for card in range(len(self.cards)):
+            print("Carta " + str(card) + ": Território", self.cards[card].territory.territoryId, self.cards[card].design, end="\n")
 
         print("Se não deseja trocar cartas, digite 0 0 0")
 
-        indexes = [input("Cartas escolhidas <n1 n2 n3>: ").split()]
+        indexes = input("Cartas escolhidas <n1 n2 n3>: ").split()
 
         while indexes[0] != "0" and indexes[1] != "0" and indexes[2] != "0":
             action = Action.PassTurn()
             return action
 
         action = Action.AddUnitsInExchangeCardsAction([self.cards[int(indexes[0])], self.cards[int(indexes[1])], self.cards[int(indexes[2])]])
+
+        print("\nVocê recebeu " + str(gameState.troopsPerCard[gameState.currentChange]) + " tropas para distribuir\n")
 
         return action
 
@@ -113,7 +115,8 @@ class HumanPlayer:
             if territory.ownedByPlayer == self.playerID:
                 print(str(territory.territoryId) + " ->", end=" ")
                 for terr in gameMap._connections[str(territory.territoryId)]:
-                    print(str(terr), end=" ")
+                    if gameMap.territories[terr].ownedByPlayer != self.playerID:
+                        print(str(terr), end=" ")
 
                 print()
 
@@ -140,7 +143,8 @@ class HumanPlayer:
             if territory.ownedByPlayer == self.playerID:
                 print(str(territory.territoryId) + " ->", end=" ")
                 for terr in gameMap._connections[str(territory.territoryId)]:
-                    print(str(terr), end=" ")
+                    if gameMap.territories[terr].ownedByPlayer == self.playerID:
+                        print(str(terr), end=" ")
 
                 print()
 
