@@ -12,8 +12,9 @@ def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCo
     for _ in tqdm(range(numberOfTimes)):
         agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
         agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
+        agent3 = RuleAgent(PlayerID("Player3", ValidPlayerColors.GREEN))
 
-        newGame = Game(showActions=False, parameters=gameParameters, listOfPlayers=[agent1, agent2])
+        newGame = Game(showActions=False, parameters=gameParameters, listOfPlayers=[agent1, agent2, agent3])
         metrics = newGame.playtest(maxNumberOfTurns=maxTurnCount, maxNumberOfSeconds=maxTime)
 
         if exportFile:

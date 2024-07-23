@@ -66,14 +66,14 @@ class Game:
         lastTurn = 0
         tieFlag = 0
 
-        moveChoicesP1Attack = 0
-        moveChoicesP2Attack = 0
+        moveChoicesAttack = []
+        moveChoicesAddUnits = []
+        moveChoicesMoveUnits = []
 
-        moveChoicesP1AddUnits = 0
-        moveChoicesP2AddUnits = 0
-
-        moveChoicesP1MoveUnits = 0
-        moveChoicesP2MoveUnits = 0
+        for player in self.listOfPlayers:
+            moveChoicesAttack.append(0)
+            moveChoicesAddUnits.append(0)
+            moveChoicesMoveUnits.append(0)
 
         beginTime = time()
 
@@ -85,39 +85,41 @@ class Game:
             if self.showActions:
                 self.gameState.map.showMap()
 
-            if self.gameState.currentPlayer == self.listOfPlayers[0]:
-                player = self.listOfPlayers[0]
-            elif self.gameState.currentPlayer == self.listOfPlayers[1]:
-                player = self.listOfPlayers[1]
+            for pl in self.listOfPlayers:
+                if self.gameState.currentPlayer == pl:
+                    player = pl
 
             if self.gameState.gamePhase == GamePhase.ALLOCATION_PHASE:
                 self.playAllocationPhase(player)
             elif self.gameState.gamePhase == GamePhase.CONFLICT_PHASE:
                 self.playConflictPhase(player)
 
-            moveChoicesP1AddUnits, moveChoicesP2AddUnits, moveChoicesP1Attack, moveChoicesP2Attack, moveChoicesP1MoveUnits, moveChoicesP2MoveUnits = self.extractMetrics(player, moveChoicesP1AddUnits, moveChoicesP2AddUnits, moveChoicesP1Attack, moveChoicesP2Attack, moveChoicesP1MoveUnits, moveChoicesP2MoveUnits)
+            moveChoicesAddUnits, moveChoicesAttack, moveChoicesMoveUnits = self.extractMetrics(player, moveChoicesAddUnits, moveChoicesAttack, moveChoicesMoveUnits)
 
             if lastTurn != self.gameState.turnCount:
                 heuristicResult = self.heuristic.heuristicFromGameState(self.gameState)
 
-                totalP1 = moveChoicesP1AddUnits + moveChoicesP1Attack + moveChoicesP1MoveUnits
-                totalP2 = moveChoicesP2AddUnits + moveChoicesP2Attack + moveChoicesP2MoveUnits
+                total = []
+                for i in range(len(self.listOfPlayers)):
+                    total.append(moveChoicesAddUnits[i] + moveChoicesAttack[i] + moveChoicesMoveUnits[i])
 
-                metrics.addTurn((heuristicResult[0][1], heuristicResult[1][1], totalP1, totalP2))
+                metrics.addTurn((heuristicResult[0][1], heuristicResult[1][1], total))
 
                 lastTurn = self.gameState.turnCount
 
-                moveChoicesP1AddUnits, moveChoicesP2AddUnits = 0, 0
-                moveChoicesP1Attack, moveChoicesP2Attack = 0, 0
-                moveChoicesP1MoveUnits, moveChoicesP2MoveUnits = 0, 0
+                moveChoicesAttack = []
+                moveChoicesAddUnits = []
+                moveChoicesMoveUnits = []
 
                 if self.showActions:
                     print("turn: " + str(self.gameState.turnCount))
                     print()
-                    print(heuristicResult[0][0].playerID.playerName + ": " + str(heuristicResult[0][1]))
-                    print(heuristicResult[1][0].playerID.playerName + ": " + str(heuristicResult[1][1]))
-                    print(heuristicResult[0][0].playerID.playerName + ": " + str(totalP1))
-                    print(heuristicResult[1][0].playerID.playerName + ": " + str(totalP2))
+                    for i in range(len(self.listOfPlayers)):
+                        print(heuristicResult[i][0].playerID.playerName + ": " + str(heuristicResult[i][1]))
+
+                    for i in range(len(self.listOfPlayers)):
+                        print(heuristicResult[i][0].playerID.playerName + ": " + str(total[i]))
+
                     print()
 
             if self.gameState.turnCount > maxNumberOfTurns:
@@ -130,37 +132,31 @@ class Game:
         if tieFlag == 1:
             winner = -1
         else:
-            if heuristicResult[0][1] > heuristicResult[1][1]:
-                winner = 0
-            else:
-                winner = 1
+            winner = max(heuristicResult, key=lambda x: x[1])[0].playerID
 
-        metrics.endGame((heuristicResult[0][1], heuristicResult[1][1], 0, 0), winner)
+        metrics.endGame((heuristicResult, 0, 0), winner)
 
         if self.showActions:
-            print(heuristicResult[0][0].playerID.playerName + ": " + str(heuristicResult[0][1]))
-            print(heuristicResult[1][0].playerID.playerName + ": " + str(heuristicResult[1][1]))
+            for i in range(len(self.listOfPlayers)):
+                print(heuristicResult[i][0].playerID.playerName + ": " + str(heuristicResult[i][1]))
 
         return metrics
 
-    def extractMetrics(self, player, moveChoicesP1AddUnits, moveChoicesP2AddUnits, moveChoicesP1Attack, moveChoicesP2Attack, moveChoicesP1MoveUnits, moveChoicesP2MoveUnits):
+    def extractMetrics(self, player, moveChoicesAddUnits, moveChoicesAttack, moveChoicesMoveUnits):
         if self.gameState.turnPhase == TurnPhase.ADD_UNITS and self.gameState.gamePhase == GamePhase.CONFLICT_PHASE:
-            if player.playerID == self.listOfPlayers[0].playerID:
-                moveChoicesP1AddUnits += self.getMoveChoicesAddUnits(player.playerID)
-            else:
-                moveChoicesP2AddUnits += self.getMoveChoicesAddUnits(player.playerID)
+            for pl in self.listOfPlayers:
+                if pl.playerID == player.playerID:
+                    moveChoicesAddUnits[self.listOfPlayers.index(pl)] += self.getMoveChoicesAddUnits(player.playerID)
         elif self.gameState.turnPhase == TurnPhase.ATTACK_ENEMY:
-            if player.playerID == self.listOfPlayers[0].playerID:
-                moveChoicesP1Attack += self.getMoveChoicesAttack(player.playerID)
-            else:
-                moveChoicesP2Attack += self.getMoveChoicesAttack(player.playerID)
+            for pl in self.listOfPlayers:
+                if pl.playerID == player.playerID:
+                    moveChoicesAttack[self.listOfPlayers.index(pl)] += self.getMoveChoicesAttack(player.playerID)
         elif self.gameState.turnPhase == TurnPhase.MOVE_UNITS:
-            if player.playerID == self.listOfPlayers[0].playerID:
-                moveChoicesP1MoveUnits += self.getMoveChoicesMoveUnits(player.playerID)
-            else:
-                moveChoicesP2MoveUnits += self.getMoveChoicesMoveUnits(player.playerID)
+            for pl in self.listOfPlayers:
+                if pl.playerID == player.playerID:
+                    moveChoicesMoveUnits[self.listOfPlayers.index(pl)] += self.getMoveChoicesMoveUnits(player.playerID)
 
-        return moveChoicesP1AddUnits, moveChoicesP2AddUnits, moveChoicesP1Attack, moveChoicesP2Attack, moveChoicesP1MoveUnits, moveChoicesP2MoveUnits
+        return moveChoicesAddUnits, moveChoicesAttack, moveChoicesMoveUnits
 
     def playAllocationPhase(self, player):
         action = None
@@ -235,8 +231,9 @@ class Game:
 if __name__ == "__main__":
     agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
     agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
+    agent3 = RuleAgent(PlayerID("Player3", ValidPlayerColors.GREEN))
 
-    game = Game(showActions=True, parameters=Parameters("/home/lana/Documentos/results risk generation/result_10generations/results_risk_generation_10generations_50offspring_24tournamentsize_0.2mutationrate/map683.json", 3, 2, "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("/home/lana/Documentos/results risk generation/result_10generations/results_risk_generation_10generations_50offspring_24tournamentsize_0.2mutationrate/map683.json", 3, 2, "random", "min"), listOfPlayers=[agent1, agent2, agent3])
 
     game.playtest()
 
