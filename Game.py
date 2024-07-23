@@ -232,13 +232,12 @@ class Game:
         return action
 
 
-'''
 if __name__ == "__main__":
     agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
     agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
 
-    game = Game(showActions=True, parameters=Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map6.json", 3, 3, "random", "min"), listOfPlayers=[agent1, agent2])
+    game = Game(showActions=True, parameters=Parameters("/home/lana/Documentos/results risk generation/result_10generations/results_risk_generation_10generations_50offspring_24tournamentsize_0.2mutationrate/map683.json", 3, 2, "random", "min"), listOfPlayers=[agent1, agent2])
 
     game.playtest()
-'''
+
 

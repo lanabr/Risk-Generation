@@ -9,10 +9,11 @@ import os
 import copy
 from Evaluate import evaluate
 import math
+import multiprocessing as mp
 
 
 class Synthesis:
-    def __init__(self, numGenerations, numOffspring, tournamentSize, mutationRate, criteria, run):
+    def __init__(self, numGenerations, numOffspring, tournamentSize, mutationRate, criteria):
         self.population = []
         self.numGenerations = numGenerations
         self.numOffspring = numOffspring
@@ -21,12 +22,19 @@ class Synthesis:
         self.allFitness = []
 
         self.criteria = criteria
-        self.run = run
+
+        self.path = "parameters/results_risk_generation_" + str(self.numGenerations) + "generations_" + str(
+            self.numOffspring) + "offspring_" + str(self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate"
+
+        for crit in self.criteria:
+            self.path += "_" + crit
+
+        os.mkdir(self.path)
 
     def gameGenerator(self):
         print("------------ Generating games with " + str(self.numGenerations) + " generations, " + str(
-            self.numOffspring) + " offspring per generation,  " + str(self.tournamentSize) +
-            " tournament size and" + str(self.mutationRate) + " mutation rate --------------")
+            self.numOffspring) + " offspring per generation, " + str(self.tournamentSize) +
+            " tournament size and " + str(self.mutationRate) + " mutation rate --------------")
         print("Creating initial population")
         self.createPopulation()
 
@@ -51,11 +59,8 @@ class Synthesis:
             self.calculateFitness(i)
 
         print("Saving final population")
-        self.showResults("results_risk_generation_" + str(self.numGenerations) + "generations_" + str(
+        self.showResults(self.path + "results_risk_generation_" + str(self.numGenerations) + "generations_" + str(
             self.numOffspring) + "offspring_" + str(self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate.txt")
-
-        print("Moving files")
-        self.moveFiles()
 
         print("------------ Finished ------------")
 
@@ -72,9 +77,9 @@ class Synthesis:
             self.population.append(Parameters(mapPath, troopsWonBeginTurn, defenseDices, initialTerritoriesMode, troopsToNewTerritory))
 
         for gameParam in self.population:
-            playtestNtimes(gameParameters=gameParam)
-            gameParam.criteria = op.calculateCriteria(gameParam)
-            os.remove("metrics/game" + str(gameParam.troopsWonBeginTurn) + "-" + str(gameParam.defenseDices) + "-"
+            playtestNtimes(gameParameters=gameParam, path=self.path)
+            gameParam.criteria = op.calculateCriteria(gameParam, self.path)
+            os.remove(self.path + "/game" + str(gameParam.troopsWonBeginTurn) + "-" + str(gameParam.defenseDices) + "-"
                       + gameParam.initialTerritoriesMode + "-" + gameParam.troopsToNewTerritory + ".txt")
 
         self.calculateFitness(0)
@@ -103,12 +108,12 @@ class Synthesis:
         return parents
 
     def crossover(self, parents):
-        offspring, mapParts = op.crossover(parents)
+        offspring, mapParts = op.crossover(parents, self.path)
 
         return offspring, mapParts
 
     def mutation(self, offspring, mapParts):
-        offspring = op.mutation(offspring, mapParts, self.mutationRate)
+        offspring = op.mutation(offspring, mapParts, self.mutationRate, self.path)
 
         return offspring
 
@@ -118,13 +123,13 @@ class Synthesis:
         return offspring
 
     def playtest(self, gameParam):
-        playtestNtimes(gameParameters=gameParam)
+        playtestNtimes(gameParameters=gameParam, path=self.path)
         gameParam = self.calculateCriteria(gameParam)
-        os.remove("metrics/game" + str(gameParam.troopsWonBeginTurn) + "-" + str(gameParam.defenseDices) + "-"
+        os.remove(self.path + "/game" + str(gameParam.troopsWonBeginTurn) + "-" + str(gameParam.defenseDices) + "-"
                       + gameParam.initialTerritoriesMode + "-" + gameParam.troopsToNewTerritory + ".txt")
 
     def calculateCriteria(self, gameParam):
-        gameParam.criteria = op.calculateCriteria(gameParam)
+        gameParam.criteria = op.calculateCriteria(gameParam, self.path)
 
         return gameParam
 
@@ -151,7 +156,7 @@ class Synthesis:
             strToWrite += "Completion: " + str(child.criteria["completion"]) + "\n"
             strToWrite += "Killer Moves: " + str(child.criteria["killerMoves"]) + "\n"
 
-        fileName = "parameters/generation" + str(generation + 1) + ".txt"
+        fileName = self.path + "/generation" + str(generation + 1) + ".txt"
         with open(fileName, "w") as file:
             file.write(strToWrite)
 
@@ -186,43 +191,6 @@ class Synthesis:
 
         self.plotFitness()
 
-    def moveFiles(self):
-        maps = os.listdir("parameters/")
-        equalPart = str(self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
-            self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate"
-        path = "parameters/results_risk_generation_" + equalPart
-
-        for crit in self.criteria:
-            path += "_" + crit
-
-        path += str(self.run)
-
-        os.mkdir(path)
-
-        for map in maps:
-            if map.startswith("map") and map.endswith(".json") and map not in ["map1.json", "map2.json", "map3.json",
-                                                                               "map4.json", "map5.json", "map6.json",
-                                                                               "map7.json", "map8.json", "map9.json",
-                                                                               "map10.json"]:
-                shutil.move("parameters/" + map, path + "/")
-
-
-
-        shutil.move("results_risk_generation_" + equalPart + ".txt", path + "/")
-
-        shutil.move("fitness_" + equalPart + ".png", path + "/")
-
-        generations = os.listdir("parameters")
-        for generation in generations:
-            if generation.startswith("generation"):
-                shutil.move("parameters/" + generation, path + "/")
-
-        # remove metrics files
-        metrics = os.listdir("metrics/")
-        for metric in metrics:
-            if metric.startswith("game"):
-                os.remove("metrics/" + metric)
-
     def plotFitness(self):
         # plot all fitness along generations, with min, max and average
 
@@ -250,9 +218,14 @@ class Synthesis:
         plt.xlabel("Generations")
         plt.ylabel("Fitness")
         plt.title("Fitness along generations")
-        plt.savefig("fitness_" + str(self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
+        plt.savefig(self.path + "/fitness_" + str(self.numGenerations) + "generations_" + str(self.numOffspring) + "offspring_" + str(
             self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate.png")
         plt.show()
+
+
+def main(p):
+    s = Synthesis(numGenerations=p[0], numOffspring=p[1], tournamentSize=p[2], mutationRate=p[3], criteria=p[4])
+    s.gameGenerator()
 
 
 if __name__ == "__main__":
@@ -283,8 +256,10 @@ if __name__ == "__main__":
     #s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1)
     #s.gameGenerator()
 
+    #s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6, criteria=["completion", "drama", "branchingFactor"], run=i)
+    #s.gameGenerator()
 
-
+    '''
     for i in range(10):
         s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6, criteria=["completion", "drama", "branchingFactor"], run=i)
         s.gameGenerator()
@@ -315,5 +290,21 @@ if __name__ == "__main__":
 
         s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1, criteria=["completion", "killerMoves", "branchingFactor"], run=i)
         s.gameGenerator()
+    '''
 
+    pool = mp.Pool(mp.cpu_count())
+
+    parameters = [[10, 50, 22, 0.6, ["completion", "killerMoves", "branchingFactor"]],
+                  [150, 30, 12, 0.1, ["completion", "killerMoves", "branchingFactor"]],
+                  [50, 50, 16, 0.6, ["completion", "killerMoves", "branchingFactor"]],
+                  [150, 30, 8, 0.6, ["completion", "killerMoves", "branchingFactor"]],
+                  [150, 20, 6, 0.8, ["completion", "killerMoves", "branchingFactor"]],
+                  [150, 50, 6, 0.4, ["completion", "killerMoves", "branchingFactor"]],
+                  [30, 45, 2, 0.6, ["completion", "killerMoves", "branchingFactor"]],
+                  [90, 45, 20, 0.6, ["completion", "killerMoves", "branchingFactor"]],
+                  [30, 35, 6, 0.8, ["completion", "killerMoves", "branchingFactor"]],
+                  [10, 25, 8, 0.8, ["completion", "killerMoves", "branchingFactor"]]]
+    pool.map(main, parameters)
+
+    pool.close()
 

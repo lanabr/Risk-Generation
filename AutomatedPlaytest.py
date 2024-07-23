@@ -8,7 +8,7 @@ from CalculateCriteria import run
 import os
 
 
-def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCount=48, maxTime=20):
+def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCount=48, maxTime=20, path="parameters"):
     for _ in tqdm(range(numberOfTimes)):
         agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
         agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
@@ -17,14 +17,15 @@ def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCo
         metrics = newGame.playtest(maxNumberOfTurns=maxTurnCount, maxNumberOfSeconds=maxTime)
 
         if exportFile:
-            metricsFile = "metrics/game" + str(gameParameters.troopsWonBeginTurn) + "-" + str(gameParameters.defenseDices) + "-" \
+            metricsFile = path + "/game" + str(gameParameters.troopsWonBeginTurn) + "-" + str(gameParameters.defenseDices) + "-" \
                             + gameParameters.initialTerritoriesMode + "-" + gameParameters.troopsToNewTerritory + ".txt"
             metrics.appendToFile(metricsFile)
 
 
-'''
-game = Parameters("/home/lana/PycharmProjects/Risk-Generation/parameters/map6.json", 2, 2, "random", "min")
-playtestNtimes(game)
-run("/home/lana/PycharmProjects/Risk-Generation/metrics/game3-2-random-min.txt")
+
+#game = Parameters("/home/lana/Documentos/results risk generation/result_10generations/results_risk_generation_10generations_50offspring_24tournamentsize_0.2mutationrate/map683.json", 3, 2, "random", "min")
+#playtestNtimes(game)
+#run("/home/lana/PycharmProjects/Risk-Generation/metrics/game3-2-random-min9.txt")
 #os.remove("metrics/game3-attack-pick-min.txt")
-'''
+
+

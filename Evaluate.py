@@ -3,6 +3,8 @@ import math
 import os
 import matplotlib.pyplot as plt
 import networkx as nx
+import pandas as pd
+
 import Map as mp
 import json
 import numpy as np
@@ -379,13 +381,13 @@ def riskAndWarCriteria():
     allLines = []
 
     playtestNtimes(gameParameters=gameParamRisk, numberOfTimes=300)
-    gameParamRisk.criteria = calculateCriteria(gameParamRisk)
-    os.remove("metrics/game" + str(gameParamRisk.troopsWonBeginTurn) + "-" + str(gameParamRisk.defenseDices) + "-"
+    gameParamRisk.criteria = calculateCriteria(gameParamRisk, "parameters")
+    os.remove("parameters/game" + str(gameParamRisk.troopsWonBeginTurn) + "-" + str(gameParamRisk.defenseDices) + "-"
               + gameParamRisk.initialTerritoriesMode + "-" + gameParamRisk.troopsToNewTerritory + ".txt")
 
     playtestNtimes(gameParameters=gameParamWar, numberOfTimes=300)
-    gameParamWar.criteria = calculateCriteria(gameParamWar)
-    os.remove("metrics/game" + str(gameParamWar.troopsWonBeginTurn) + "-" + str(gameParamWar.defenseDices) + "-"
+    gameParamWar.criteria = calculateCriteria(gameParamWar, "parameters")
+    os.remove("parameters/game" + str(gameParamWar.troopsWonBeginTurn) + "-" + str(gameParamWar.defenseDices) + "-"
               + gameParamWar.initialTerritoriesMode + "-" + gameParamWar.troopsToNewTerritory + ".txt")
 
     allLines.append("Risk criteria\n")
@@ -1000,12 +1002,40 @@ def avgExec():
         plt.plot(range(1, len(execsFitness[i])+1), [math.fsum(execsFitness[i]) / len(execsFitness[i])] * len(execsFitness[i]), color='red')
         plt.plot(range(1, len(execsFitness[i])+1), [math.fsum(execsFitness[i]) / len(execsFitness[i]) + np.std(execsFitness[i])] * len(execsFitness[i]), color='green')
         plt.plot(range(1, len(execsFitness[i])+1), [math.fsum(execsFitness[i]) / len(execsFitness[i]) - np.std(execsFitness[i])] * len(execsFitness[i]), color='green')
-        plt.title(uniqueExecs[i].split("/")[-1])
+        title = uniqueExecs[i].split("/")[-1]
+        plt.title(title[:60] + "\n" + title[60:])
         plt.xlabel("Execs")
         plt.ylabel("Fitness")
 
         plt.savefig("results/" + uniqueExecs[i].split("/")[-1] + ".png")
         plt.show()
+
+    index = range(1, len(execsFitness[0]) + 1)
+    tam = 0.4
+    df = pd.DataFrame(execsFitness, index=index)
+
+    plt.clf()
+    df.plot(kind='bar', figsize=(16, 8))
+    mini = 10
+    minii = 10
+
+    for i in range(len(execsFitness)):
+        plt.plot(range(0, len(execsFitness[i])), [math.fsum(execsFitness[i]) / len(execsFitness[i])] * len(execsFitness[i]))
+        if mini > math.fsum(execsFitness[i]) / len(execsFitness[i]):
+            mini = math.fsum(execsFitness[i]) / len(execsFitness[i])
+            minii = i
+
+    plt.gca().xaxis.set_tick_params(rotation=0)
+    plt.title("All Execs")
+    plt.xlabel("Execs")
+    plt.ylabel("Fitness")
+    plt.savefig("results/allexecs.png")
+    plt.show()
+
+    for i in range(len(uniqueExecs)):
+        print(str(i) + ": " + uniqueExecs[i])
+
+    print("\nBest: " + str(minii) + ": " + uniqueExecs[minii])
 
     with open("results/newExecsFitness.txt", 'w') as fl:
         fl.writelines(allLines)
@@ -1058,8 +1088,8 @@ def evaluate():
     #print("New Fitness-----------------------------------------------------------------")
     #newFitness()
     #print()
-    #print("Avg Exec--------------------------------------------------------------------")
-    #avgExec()
+    print("Avg Exec--------------------------------------------------------------------")
+    avgExec()
     print()
 
 
