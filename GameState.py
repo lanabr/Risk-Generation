@@ -55,6 +55,19 @@ class GameState:
         self.playerTurnCount += 1
         self.currentPlayerNumber = self.playerTurnCount % len(self.listOfPlayers)
         self.currentPlayer = self.listOfPlayers[self.currentPlayerNumber]
+
+        if len(self.map.getTerritoriesFromPlayer(self.currentPlayer.playerID)) == 0:
+            self.currentPlayer.playerID.active = False
+
+        found = False
+        while not found:
+            if self.currentPlayer.playerID.active:
+                found = True
+            else:
+                self.playerTurnCount += 1
+                self.currentPlayerNumber = self.playerTurnCount % len(self.listOfPlayers)
+                self.currentPlayer = self.listOfPlayers[self.currentPlayerNumber]
+
         self.checkGamePhase()
 
         self.troopsToAddPickPhase = self.calculateNumberOfTroops(self.currentPlayer.playerID)

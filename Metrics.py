@@ -17,10 +17,9 @@ class Metrics:
     def printMetrics(self):
         for i in range(len(self.listOfHeuristic)):
             print("Turn " + str(i))
-            print("Player 1 heuristic: " + str(self.listOfHeuristic[i][0]))
-            print("Player 1 move choices: " + str(self.listOfHeuristic[i][2]))
-            print("Player 2 heuristics: " + str(self.listOfHeuristic[i][1]))
-            print("Player 2 move choices: " + str(self.listOfHeuristic[i][3]))
+            for j in range(len(self.listOfHeuristic[i])):
+                print("Player " + str(j+1) + " heuristic: " + str(self.listOfHeuristic[i][j][1]))
+                print("Player " + str(j+1) + " move choices: " + str(self.listOfHeuristic[i][j][2]))
 
             print()
 
@@ -32,14 +31,11 @@ class Metrics:
         for i in range(len(self.listOfHeuristic)):
             strToWrite += str(i)
             strToWrite += "\n"
-            strToWrite += "0:" + str(self.listOfHeuristic[i][0])
-            strToWrite += "\n"
-            strToWrite += "1:" + str(self.listOfHeuristic[i][1])
-            strToWrite += "\n"
-            strToWrite += "0:" + str(self.listOfHeuristic[i][2])
-            strToWrite += "\n"
-            strToWrite += "1:" + str(self.listOfHeuristic[i][3])
-            strToWrite += "\n"
+            for j in range(len(self.listOfHeuristic[i])):
+                strToWrite += str(self.listOfHeuristic[i][j][0].playerID) + ": " + str(self.listOfHeuristic[i][j][1])
+                strToWrite += "\n"
+                strToWrite += str(self.listOfHeuristic[i][j][0].playerID) + ": " + str(self.listOfHeuristic[i][j][2])
+                strToWrite += "\n"
 
             strToWrite += "\n"
 

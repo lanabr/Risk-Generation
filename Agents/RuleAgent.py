@@ -75,7 +75,7 @@ class RuleAgent:
         if len(allTerr) == 0:
             allTerr = gameMap.getTerritoriesFromPlayer(self.playerID)
 
-        lowestTroop = 10000
+        lowestTroop = 100000
         lowestTerr = None
         for terr in allTerr:
             if terr.numberOfTroops < lowestTroop:

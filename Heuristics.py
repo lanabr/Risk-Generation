@@ -18,9 +18,9 @@ class Heuristic:
 
         return ((len(terrFromPlayer) / len(allTerr)) * self.weightTerr) + ((unitsFromPlayer / allUnits) * self.weightUnit)
 
-    def heuristicFromGameState(self, gs):
+    def heuristicFromGameState(self, gs, totalMoves):
         returnList = []
-        for player in gs.listOfPlayers:
+        for player, tM in zip(gs.listOfPlayers, totalMoves):
             hPlayer = self.heuristicForPlayer(gs, player.playerID)
-            returnList.append((player, hPlayer))
+            returnList.append((player, hPlayer, tM))
         return returnList

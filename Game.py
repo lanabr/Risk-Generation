@@ -97,19 +97,20 @@ class Game:
             moveChoicesAddUnits, moveChoicesAttack, moveChoicesMoveUnits = self.extractMetrics(player, moveChoicesAddUnits, moveChoicesAttack, moveChoicesMoveUnits)
 
             if lastTurn != self.gameState.turnCount:
-                heuristicResult = self.heuristic.heuristicFromGameState(self.gameState)
-
                 total = []
                 for i in range(len(self.listOfPlayers)):
                     total.append(moveChoicesAddUnits[i] + moveChoicesAttack[i] + moveChoicesMoveUnits[i])
 
-                metrics.addTurn((heuristicResult[0][1], heuristicResult[1][1], total))
+                heuristicResult = self.heuristic.heuristicFromGameState(self.gameState, total)
+
+                metrics.addTurn(heuristicResult)
 
                 lastTurn = self.gameState.turnCount
 
-                moveChoicesAttack = []
-                moveChoicesAddUnits = []
-                moveChoicesMoveUnits = []
+                for i in range(len(self.listOfPlayers)):
+                    moveChoicesAttack[i] = 0
+                    moveChoicesAddUnits[i] = 0
+                    moveChoicesMoveUnits[i] = 0
 
                 if self.showActions:
                     print("turn: " + str(self.gameState.turnCount))
@@ -126,16 +127,20 @@ class Game:
                 tieFlag = 1
                 break
 
-        heuristicResult = self.heuristic.heuristicFromGameState(self.gameState)
+        total = []
+        for i in range(len(self.listOfPlayers)):
+            total.append(0)
+        heuristicResult = self.heuristic.heuristicFromGameState(self.gameState, total)
 
         winner = None
         if tieFlag == 1:
             winner = -1
         else:
-            winner = max(heuristicResult, key=lambda x: x[1])[0].playerID
+            winner = max(heuristicResult, key=lambda x: x[1])[0].playerID.playerName
 
-        metrics.endGame((heuristicResult, 0, 0), winner)
+        metrics.endGame((heuristicResult), winner)
 
+        metrics.printMetrics()
         if self.showActions:
             for i in range(len(self.listOfPlayers)):
                 print(heuristicResult[i][0].playerID.playerName + ": " + str(heuristicResult[i][1]))
@@ -232,8 +237,9 @@ if __name__ == "__main__":
     agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
     agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
     agent3 = RuleAgent(PlayerID("Player3", ValidPlayerColors.GREEN))
+    agent4 = RuleAgent(PlayerID("Player4", ValidPlayerColors.PURPLE))
 
-    game = Game(showActions=True, parameters=Parameters("/home/lana/Documentos/results risk generation/result_10generations/results_risk_generation_10generations_50offspring_24tournamentsize_0.2mutationrate/map683.json", 3, 2, "random", "min"), listOfPlayers=[agent1, agent2, agent3])
+    game = Game(showActions=False, parameters=Parameters("C:\\Users\\Lana\\PycharmProjects\\Risk-Generation\\parameters\\map1.json", 3, 2, "random", "min"), listOfPlayers=[agent1, agent2, agent3, agent4])
 
     game.playtest()
 
