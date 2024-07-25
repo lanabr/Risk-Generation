@@ -57,8 +57,13 @@ class CalculateCriteria:
         cumulativeSum = 0
         allValues = []
         for gameTurns in self.allMetrics:
-            currentWinner = 0 if gameTurns[0][0] > gameTurns[0][1] else 1
-            currentLoser = 1 if currentWinner == 0 else 0
+            heuristc = []
+            for i in range(int(len(self.allMetrics[0][0])/2)):
+                heuristc.append(gameTurns[0][i])
+
+            currentWinner = heuristc.index(max(heuristc))
+            currentLoser = heuristc.index(min(heuristc))
+
             allChanges = 0
             for turn in gameTurns:
                 if turn[currentWinner] < turn[currentLoser]:
@@ -72,23 +77,27 @@ class CalculateCriteria:
         return cumulativeSum / len(self.allMetrics)
 
     def calculateBranchingFactor(self): # media da quantidade de movimentos por turno, 0 é baixo, 1 é alto
-        branchingFactorP1 = 0
-        branchingFactorP2 = 0
+        branchingFactor = []
+        for i in range(int(len(self.allMetrics[0][0])/2)):
+            branchingFactor.append(0)
 
         for game in range(len(self.allTurnCounts)):
-            cumulativeSum = [0, 0]
+            cumulativeSum = []
+            for i in range(int(len(self.allMetrics[0][0])/2)):
+                cumulativeSum.append(0)
 
             for turn in range(round((self.allTurnCounts[game] - 1))):
-                cumulativeSum[0] += self.allMetrics[game][turn][2]
-                cumulativeSum[1] += self.allMetrics[game][turn][3]
+                for pl in range(0, len(self.allMetrics[0][0]), 2):
+                    cumulativeSum[int(pl/2)] += self.allMetrics[game][turn][pl+1]
 
-            branchingFactorP1 += min(1.0, math.log10((cumulativeSum[0] / (self.allTurnCounts[game]+1)) + 1) / 2)
-            branchingFactorP2 += min(1.0, math.log10((cumulativeSum[1] / (self.allTurnCounts[game]+1)) + 1) / 2)
+            for i in range(len(cumulativeSum)):
+                branchingFactor[i] += min(1.0, math.log10((cumulativeSum[i] / (self.allTurnCounts[game])) + 1) / 2)
 
-        resultP1 = branchingFactorP1 / len(self.allTurnCounts)
-        resultP2 = branchingFactorP2 / len(self.allTurnCounts)
+        result = []
+        for i in range(len(branchingFactor)):
+            result.append(branchingFactor[i] / len(self.allTurnCounts))
 
-        return (resultP1 + resultP2) / 2
+        return sum(result) / len(result)
 
     def calculateCompletion(self):
         allWins = self.allWinners.count(0) + self.allWinners.count(1)
