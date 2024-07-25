@@ -137,10 +137,10 @@ class Game:
             winner = -1
         else:
             winner = max(heuristicResult, key=lambda x: x[1])[0].playerID.playerName
+            winner = winner[-1]
 
-        metrics.endGame((heuristicResult), winner)
+        metrics.endGame(heuristicResult, winner)
 
-        metrics.printMetrics()
         if self.showActions:
             for i in range(len(self.listOfPlayers)):
                 print(heuristicResult[i][0].playerID.playerName + ": " + str(heuristicResult[i][1]))

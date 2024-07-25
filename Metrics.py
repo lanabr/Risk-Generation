@@ -32,9 +32,9 @@ class Metrics:
             strToWrite += str(i)
             strToWrite += "\n"
             for j in range(len(self.listOfHeuristic[i])):
-                strToWrite += str(self.listOfHeuristic[i][j][0].playerID) + ": " + str(self.listOfHeuristic[i][j][1])
+                strToWrite += str(j) + ": " + str(self.listOfHeuristic[i][j][1])
                 strToWrite += "\n"
-                strToWrite += str(self.listOfHeuristic[i][j][0].playerID) + ": " + str(self.listOfHeuristic[i][j][2])
+                strToWrite += str(j) + ": " + str(self.listOfHeuristic[i][j][2])
                 strToWrite += "\n"
 
             strToWrite += "\n"

@@ -120,21 +120,23 @@ class CalculateCriteria:
         while i < len(allText):
             if allText[i] != '\n':
                 currentTurn = int(allText[i])
-                gameMetrics.append(
-                    (float(allText[i+1].split(":")[1]),
-                     float(allText[i+2].split(":")[1]),
-                     float(allText[i+3].split(":")[1]),
-                     float(allText[i+4].split(":")[1])
-                     ))
-
-                i += 6
-
+                i = i + 1
+                allheuristic = []
+                allmoves = []
+                while allText[i] != '\n':
+                    allheuristic.append(float(allText[i].split(":")[1]))
+                    allmoves.append(float(allText[i+1].split(":")[1]))
+                    i = i + 2
+                for moves in allmoves:
+                    allheuristic.append(moves)
+                gameMetrics.append(allheuristic)
+                i = i + 1
             else:
                 self.allTurnCounts.append(currentTurn)
                 self.allWinners.append(int(allText[i+1]))
                 self.allMetrics.append(gameMetrics)
                 gameMetrics = []
-                i += 3
+                i = i + 3
 
         return
 

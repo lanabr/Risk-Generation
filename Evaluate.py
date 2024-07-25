@@ -380,12 +380,12 @@ def riskAndWarCriteria():
 
     allLines = []
 
-    playtestNtimes(gameParameters=gameParamRisk, numberOfTimes=300)
+    playtestNtimes(gameParameters=gameParamRisk, numberOfTimes=100)
     gameParamRisk.criteria = calculateCriteria(gameParamRisk, "parameters")
     os.remove("parameters/game" + str(gameParamRisk.troopsWonBeginTurn) + "-" + str(gameParamRisk.defenseDices) + "-"
               + gameParamRisk.initialTerritoriesMode + "-" + gameParamRisk.troopsToNewTerritory + ".txt")
 
-    playtestNtimes(gameParameters=gameParamWar, numberOfTimes=300)
+    playtestNtimes(gameParameters=gameParamWar, numberOfTimes=100)
     gameParamWar.criteria = calculateCriteria(gameParamWar, "parameters")
     os.remove("parameters/game" + str(gameParamWar.troopsWonBeginTurn) + "-" + str(gameParamWar.defenseDices) + "-"
               + gameParamWar.initialTerritoriesMode + "-" + gameParamWar.troopsToNewTerritory + ".txt")
@@ -1042,7 +1042,7 @@ def avgExec():
 
 
 def evaluate():
-    pass
+    #pass
     #print("Best fitness----------------------------------------------------------------")
     #best_fitness()
     #print()
@@ -1064,9 +1064,9 @@ def evaluate():
     #print("Map Comparison-------------------------------------------------------------")
     #mapComparison()
     #print()
-    #print("Risk and War Criteria-------------------------------------------------------")
-    #riskAndWarCriteria()
-    #print()
+    print("Risk and War Criteria-------------------------------------------------------")
+    riskAndWarCriteria()
+    print()
     #print("Risk to War-----------------------------------------------------------------")
     #riskToWar()
     #print()
@@ -1088,9 +1088,9 @@ def evaluate():
     #print("New Fitness-----------------------------------------------------------------")
     #newFitness()
     #print()
-    print("Avg Exec--------------------------------------------------------------------")
-    avgExec()
-    print()
+    #print("Avg Exec--------------------------------------------------------------------")
+    #avgExec()
+    #print()
 
 
 evaluate()
