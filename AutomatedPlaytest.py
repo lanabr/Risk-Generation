@@ -23,10 +23,9 @@ def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCo
             metrics.appendToFile(metricsFile)
 
 
-
-#game = Parameters("/home/lana/Documentos/results risk generation/result_10generations/results_risk_generation_10generations_50offspring_24tournamentsize_0.2mutationrate/map683.json", 3, 2, "random", "min")
-#playtestNtimes(game)
-#run("/home/lana/PycharmProjects/Risk-Generation/metrics/game3-2-random-min9.txt")
-#os.remove("metrics/game3-attack-pick-min.txt")
+game = Parameters("parameters/map1.json", 3, 2, "random", "min")
+playtestNtimes(game)
+run("parameters/game3-2-random-min.txt")
+os.remove("parameters/game3-2-random-min.txt")
 
 

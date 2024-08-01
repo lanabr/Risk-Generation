@@ -22,5 +22,6 @@ class Heuristic:
         returnList = []
         for player, tM in zip(gs.listOfPlayers, totalMoves):
             hPlayer = self.heuristicForPlayer(gs, player.playerID)
+            #print("Player " + str(player.playerID) + " heuristic: " + str(hPlayer) + " move choices: " + str(tM))
             returnList.append((player, hPlayer, tM))
         return returnList

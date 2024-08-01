@@ -87,8 +87,9 @@ class CalculateCriteria:
                 cumulativeSum.append(0)
 
             for turn in range(round((self.allTurnCounts[game] - 1))):
+                #print(self.allMetrics[game][turn])
                 for pl in range(0, len(self.allMetrics[0][0]), 2):
-                    cumulativeSum[int(pl/2)] += self.allMetrics[game][turn][pl+1]
+                    cumulativeSum[int(pl/2)] += self.allMetrics[game][turn][int(pl)+1]
 
             for i in range(len(cumulativeSum)):
                 branchingFactor[i] += min(1.0, math.log10((cumulativeSum[i] / (self.allTurnCounts[game])) + 1) / 2)
@@ -106,19 +107,81 @@ class CalculateCriteria:
 
         return result
 
-    def calculateKillerMoves(self):
+    def calculateKillerMovesAll(self):
         cumulativeSum = 0
 
         for game in range(len(self.allMetrics)):
             gameSum = []
 
-            for turn in range(0, len(self.allMetrics[game]) - 1):
-                gameSum.append((self.allMetrics[game][turn][0] - self.allMetrics[game][turn][1]) - (self.allMetrics[game][turn-1][0] - self.allMetrics[game][turn-1][1]))
+            for turn in range(1, len(self.allMetrics[game])):
+                for pl in range(0, len(self.allMetrics[0][0]), 2):
+                    for op in range(pl+2, len(self.allMetrics[0][0]), 2):
+                        gameSum.append((self.allMetrics[game][turn][pl] - self.allMetrics[game][turn][op]) - (self.allMetrics[game][turn-1][pl] - self.allMetrics[game][turn-1][op]))
 
             if len(gameSum) > 0:
                 cumulativeSum += max(gameSum)
 
         return cumulativeSum / len(self.allMetrics)
+
+    def calculateKillerMovesBestAnt(self):
+        cumulativeSum = 0
+
+        for game in range(len(self.allMetrics)):
+            gameSum = []
+
+            for turn in range(1, len(self.allMetrics[game])):
+                bestAnt = 0
+                bestValue = -1
+                for pl in range(0, len(self.allMetrics[0][0]), 2):
+                    if self.allMetrics[game][turn][pl] > bestValue:
+                        bestValue = self.allMetrics[game][turn][pl]
+                        bestAnt = pl
+                for op in range(0, len(self.allMetrics[0][0]), 2):
+                    if op != bestAnt:
+                        gameSum.append((self.allMetrics[game][turn][bestAnt] - self.allMetrics[game][turn][op]) - (self.allMetrics[game][turn-1][bestAnt] - self.allMetrics[game][turn-1][op]))
+
+            if len(gameSum) > 0:
+                cumulativeSum += max(gameSum)
+
+        return cumulativeSum / len(self.allMetrics)
+
+    def calculateKillerMovesBestAtual(self):
+        cumulativeSum = 0
+
+        for game in range(len(self.allMetrics)):
+            gameSum = []
+
+            for turn in range(1, len(self.allMetrics[game])):
+                bestAnt = 0
+                bestValue = -1
+                for pl in range(0, len(self.allMetrics[0][0]), 2):
+                    if self.allMetrics[game][turn-1][pl] > bestValue:
+                        bestValue = self.allMetrics[game][turn][pl]
+                        bestAnt = pl
+                for op in range(0, len(self.allMetrics[0][0]), 2):
+                    if op != bestAnt:
+                        gameSum.append((self.allMetrics[game][turn][bestAnt] - self.allMetrics[game][turn][op]) - (self.allMetrics[game][turn - 1][bestAnt] - self.allMetrics[game][turn - 1][op]))
+
+            if len(gameSum) > 0:
+                cumulativeSum += max(gameSum)
+
+        return cumulativeSum / len(self.allMetrics)
+
+    def calculateKillerMovesPlayer(self):
+        cumulativeSum = 0
+
+        for game in range(len(self.allMetrics)):
+            gameSum = []
+
+            for turn in range(1, len(self.allMetrics[game])):
+                for pl in range(0, len(self.allMetrics[0][0]), 2):
+                    gameSum.append(self.allMetrics[game][turn][pl] - self.allMetrics[game][turn-1][pl])
+
+            if len(gameSum) > 0:
+                cumulativeSum += max(gameSum)
+
+        return cumulativeSum / len(self.allMetrics)
+
 
     def importMetricsFromFile(self, fileName):
         with open(fileName, 'r') as f:
@@ -131,13 +194,10 @@ class CalculateCriteria:
                 currentTurn = int(allText[i])
                 i = i + 1
                 allheuristic = []
-                allmoves = []
                 while allText[i] != '\n':
                     allheuristic.append(float(allText[i].split(":")[1]))
-                    allmoves.append(float(allText[i+1].split(":")[1]))
+                    allheuristic.append(float(allText[i+1].split(":")[1]))
                     i = i + 2
-                for moves in allmoves:
-                    allheuristic.append(moves)
                 gameMetrics.append(allheuristic)
                 i = i + 1
             else:
@@ -154,11 +214,14 @@ def run(filename):
     cc = CalculateCriteria()
     cc.importMetricsFromFile(filename)
 
-    print(cc.calculateAdvantage())
-    print(cc.calculateDuration())
-    print(cc.calculateDrama())
-    print(cc.calculateLeadChange())
-    print(cc.calculateBranchingFactor())
-    print(cc.calculateCompletion())
-    print(cc.calculateKillerMoves())
+    print("Advantage:", cc.calculateAdvantage())
+    print("Duration:", cc.calculateDuration())
+    print("Drama:", cc.calculateDrama())
+    print("Lead Change:", cc.calculateLeadChange())
+    print("Branching Factor:", cc.calculateBranchingFactor())
+    print("Completion:", cc.calculateCompletion())
+    print("Killer Moves AllxAll:", cc.calculateKillerMovesAll())
+    print("Killer Moves BestAntxAll:", cc.calculateKillerMovesBestAnt())
+    print("Killer Moves BestAtualxAll:", cc.calculateKillerMovesBestAtual())
+    print("Killer Moves Player:", cc.calculateKillerMovesPlayer())
 
