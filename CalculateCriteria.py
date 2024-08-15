@@ -31,11 +31,15 @@ class CalculateCriteria:
         allValues = []
         for i in range(len(self.allWinners)):
             gameWinner = self.allWinners[i]
+            if gameWinner == -1:
+                continue
+            gameWinner -= 1
 
-            if gameWinner == 0:   # define ganhador e perdedor
-                gameLoser = 1
-            else:
-                gameLoser = 0
+            gameLosers = []
+
+            for player in range(0, len(self.allMetrics[i][-1]), 2):
+                if int(player/2) != gameWinner:
+                    gameLosers.append(player)
 
             turnHeuristic = self.allMetrics[i]
 
@@ -43,9 +47,10 @@ class CalculateCriteria:
             temporaryCumulativeSum = 0
 
             for turn in turnHeuristic:
-                if turn[gameWinner] < turn[gameLoser]:
-                    turnsInDisadvantage += 1
-                    temporaryCumulativeSum += math.sqrt(turn[gameLoser] - turn[gameWinner])
+                for gameLoser in gameLosers:
+                    if turn[gameWinner] < turn[gameLoser]:
+                        turnsInDisadvantage += 1
+                        temporaryCumulativeSum += math.sqrt(turn[gameLoser] - turn[gameWinner])
 
             if turnsInDisadvantage > 0:
                 cumulativeSum += temporaryCumulativeSum / turnsInDisadvantage
@@ -181,7 +186,6 @@ class CalculateCriteria:
                 cumulativeSum += max(gameSum)
 
         return cumulativeSum / len(self.allMetrics)
-
 
     def importMetricsFromFile(self, fileName):
         with open(fileName, 'r') as f:
