@@ -1,5 +1,4 @@
 import random
-import shutil
 import matplotlib.pyplot as plt
 
 import GeneticOperations as op
@@ -7,9 +6,6 @@ from Parameters import Parameters
 from AutomatedPlaytest import playtestNtimes
 import os
 import copy
-from Evaluate import evaluate
-import math
-import multiprocessing as mp
 
 
 class Synthesis:
@@ -226,85 +222,3 @@ class Synthesis:
 def main(p):
     s = Synthesis(numGenerations=p[0], numOffspring=p[1], tournamentSize=p[2], mutationRate=p[3], criteria=p[4])
     s.gameGenerator()
-
-
-if __name__ == "__main__":
-    #s = Synthesis(numGenerations=10, numOffspring=25, tournamentSize=8, mutationRate=0.8)
-    #s.gameGenerator()
-
-    #s = Synthesis(numGenerations=30, numOffspring=35, tournamentSize=6, mutationRate=0.8)
-    #s.gameGenerator()
-
-    #s = Synthesis(numGenerations=90, numOffspring=45, tournamentSize=20, mutationRate=0.6)
-    #s.gameGenerator()
-
-    #s = Synthesis(numGenerations=30, numOffspring=45, tournamentSize=2, mutationRate=0.6)
-    #s.gameGenerator()
-
-    #s = Synthesis(numGenerations=150, numOffspring=50, tournamentSize=6, mutationRate=0.4)
-    #s.gameGenerator()
-
-    #s = Synthesis(numGenerations=150, numOffspring=20, tournamentSize=6, mutationRate=0.8)
-    #s.gameGenerator()
-
-    #s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=8, mutationRate=0.6)
-    #s.gameGenerator()
-
-    #s = Synthesis(numGenerations=50, numOffspring=50, tournamentSize=16, mutationRate=0.6)
-    #s.gameGenerator()
-
-    #s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1)
-    #s.gameGenerator()
-
-    #s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6, criteria=["completion", "drama", "branchingFactor"], run=i)
-    #s.gameGenerator()
-
-    '''
-    for i in range(10):
-        s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6, criteria=["completion", "drama", "branchingFactor"], run=i)
-        s.gameGenerator()
-
-        s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6, criteria=["leadChange", "drama", "killerMoves"], run=i)
-        s.gameGenerator()
-
-        s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6, criteria=["completion", "leadChange", "branchingFactor"], run=i)
-        s.gameGenerator()
-
-        s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6, criteria=["completion", "drama", "leadChange", "killerMoves"], run=i)
-        s.gameGenerator()
-
-        s = Synthesis(numGenerations=10, numOffspring=50, tournamentSize=22, mutationRate=0.6, criteria=["completion", "killerMoves", "branchingFactor"], run=i)
-        s.gameGenerator()
-
-        s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1, criteria=["completion", "drama", "branchingFactor"], run=i)
-        s.gameGenerator()
-
-        s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1, criteria=["leadChange", "drama", "killerMoves"], run=i)
-        s.gameGenerator()
-
-        s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1, criteria=["completion", "leadChange", "branchingFactor"], run=i)
-        s.gameGenerator()
-
-        s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1, criteria=["completion", "drama", "leadChange", "killerMoves"], run=i)
-        s.gameGenerator()
-
-        s = Synthesis(numGenerations=150, numOffspring=30, tournamentSize=12, mutationRate=0.1, criteria=["completion", "killerMoves", "branchingFactor"], run=i)
-        s.gameGenerator()
-    '''
-
-    pool = mp.Pool(mp.cpu_count())
-
-    parameters = [[10, 50, 22, 0.6, ["completion", "killerMoves", "branchingFactor"]],
-                  [150, 30, 12, 0.1, ["completion", "killerMoves", "branchingFactor"]],
-                  [50, 50, 16, 0.6, ["completion", "killerMoves", "branchingFactor"]],
-                  [150, 30, 8, 0.6, ["completion", "killerMoves", "branchingFactor"]],
-                  [150, 20, 6, 0.8, ["completion", "killerMoves", "branchingFactor"]],
-                  [150, 50, 6, 0.4, ["completion", "killerMoves", "branchingFactor"]],
-                  [30, 45, 2, 0.6, ["completion", "killerMoves", "branchingFactor"]],
-                  [90, 45, 20, 0.6, ["completion", "killerMoves", "branchingFactor"]],
-                  [30, 35, 6, 0.8, ["completion", "killerMoves", "branchingFactor"]],
-                  [10, 25, 8, 0.8, ["completion", "killerMoves", "branchingFactor"]]]
-    pool.map(main, parameters)
-
-    pool.close()
-
