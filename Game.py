@@ -1,8 +1,4 @@
-from Structures.PlayerID import PlayerID
-from Structures.ValidPlayerColors import ValidPlayerColors
-from Agents.RuleAgent import RuleAgent
-from Agents.HumanPlayer import HumanPlayer
-from Parameters import Parameters
+
 from Heuristics import Heuristic
 from GameState import GameState
 from Metrics import Metrics
@@ -231,16 +227,3 @@ class Game:
     def moveUnitsPhase(self, player):
         action = player.playMoveUnits(self.gameState)
         return action
-
-
-if __name__ == "__main__":
-    agent1 = RuleAgent(PlayerID("Player1", ValidPlayerColors.BLUE))
-    agent2 = RuleAgent(PlayerID("Player2", ValidPlayerColors.RED))
-    agent3 = RuleAgent(PlayerID("Player3", ValidPlayerColors.GREEN))
-    agent4 = RuleAgent(PlayerID("Player4", ValidPlayerColors.PURPLE))
-
-    game = Game(showActions=False, parameters=Parameters("C:\\Users\\Lana\\PycharmProjects\\Risk-Generation\\parameters\\map1.json", 3, 2, "random", "min"), listOfPlayers=[agent1, agent2, agent3, agent4])
-
-    game.playtest()
-
-
