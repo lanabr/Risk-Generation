@@ -31,18 +31,18 @@ def calculateCriteria(gameParameters, path):
     return gameParameters.criteria
 
 
-def fitnessDistance(gameParameters, criteriaUsed):
+def fitnessDistance(gameParameters):
     fitness = 0
     ideal = {"advantage": 0, "duration": 0, "drama": 0.5, "leadChange": 0.5, "branchingFactor": 0.5, "completion": 1, "killerMoves": 0.5}
 
-    for key in criteriaUsed:
+    for key in gameParameters.criteria:
         fitness += abs(gameParameters.criteria[key] - ideal[key])
 
     return fitness
 
 
-def calculateFitness(gameParameters, criteriaUsed):
-    fitness = fitnessDistance(gameParameters, criteriaUsed)
+def calculateFitness(gameParameters):
+    fitness = fitnessDistance(gameParameters)
 
     return fitness
 

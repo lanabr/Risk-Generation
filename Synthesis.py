@@ -9,7 +9,7 @@ import copy
 
 
 class Synthesis:
-    def __init__(self, numGenerations, numOffspring, tournamentSize, mutationRate, criteria):
+    def __init__(self, numGenerations, numOffspring, tournamentSize, mutationRate):
         self.population = []
         self.numGenerations = numGenerations
         self.numOffspring = numOffspring
@@ -17,13 +17,8 @@ class Synthesis:
         self.mutationRate = mutationRate
         self.allFitness = []
 
-        self.criteria = criteria
-
         self.path = "parameters/results_risk_generation_" + str(self.numGenerations) + "generations_" + str(
             self.numOffspring) + "offspring_" + str(self.tournamentSize) + "tournamentsize_" + str(self.mutationRate) + "mutationrate"
-
-        for crit in self.criteria:
-            self.path += "_" + crit
 
         os.mkdir(self.path)
 
@@ -85,7 +80,7 @@ class Synthesis:
             self.allFitness.append([])
 
         for gameParam in self.population:
-            gameParam.fitness = op.calculateFitness(gameParam, self.criteria)
+            gameParam.fitness = op.calculateFitness(gameParam)
             self.allFitness[geracao].append(gameParam.fitness)
 
         self.population.sort(key=lambda x: x.fitness)
@@ -220,5 +215,5 @@ class Synthesis:
 
 
 def main(p):
-    s = Synthesis(numGenerations=p[0], numOffspring=p[1], tournamentSize=p[2], mutationRate=p[3], criteria=p[4])
+    s = Synthesis(numGenerations=p[0], numOffspring=p[1], tournamentSize=p[2], mutationRate=p[3])
     s.gameGenerator()
