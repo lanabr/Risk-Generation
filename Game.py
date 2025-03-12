@@ -112,10 +112,8 @@ class Game:
                     print("turn: " + str(self.gameState.turnCount))
                     print()
                     for i in range(len(self.listOfPlayers)):
-                        print(heuristicResult[i][0].playerID.playerName + ": " + str(heuristicResult[i][1]))
-
-                    for i in range(len(self.listOfPlayers)):
-                        print(heuristicResult[i][0].playerID.playerName + ": " + str(total[i]))
+                        print(heuristicResult[i][0].playerID.playerName + " heuristic: " + str(heuristicResult[i][1]))
+                        print(heuristicResult[i][0].playerID.playerName + " possible moves: " + str(total[i]))
 
                     print()
 

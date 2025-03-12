@@ -235,6 +235,8 @@ class GameState:
     def calculateNumberOfTroops(self, playerID):
         numberOfTerritories = len(self.map.getTerritoriesFromPlayer(playerID))
 
+
+
         return max(3, math.ceil(numberOfTerritories / self.parameters.troopsWonBeginTurn))
 
     def hasContinentTroopsToAdd(self, playerID):
