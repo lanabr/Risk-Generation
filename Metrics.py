@@ -26,8 +26,9 @@ class Metrics:
         print()
         print("Winner: " + str(self.winner))
 
-    def appendToFile(self, fileName):
+    def appendToFile(self, fileName, numPlayers):
         strToWrite = ""
+        strToWrite += str(numPlayers) + "\n"
         for i in range(len(self.listOfHeuristic)):
             strToWrite += str(i)
             strToWrite += "\n"

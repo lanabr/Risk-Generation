@@ -10,8 +10,6 @@ class Parameters:
         self.initialTerritoriesMode = initialTerritoriesMode   # random, pick         escolha inicial dos territorios é aleatoria ou escolhida pelos jogadores
         self.troopsToNewTerritory = troopsToNewTerritory       # min, max             tropas a serem colocadas em um novo territorio
 
-        print(troopsWonBeginTurn, self.troopsWonBeginTurn)
-
         self.criteria = {}
         self.fitness = 0
         self.mapNumber = 0

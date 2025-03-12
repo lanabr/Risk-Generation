@@ -141,6 +141,7 @@ class Game:
 
         return metrics
 
+
     def extractMetrics(self, player, moveChoicesAddUnits, moveChoicesAttack, moveChoicesMoveUnits):
         if self.gameState.turnPhase == TurnPhase.ADD_UNITS and self.gameState.gamePhase == GamePhase.CONFLICT_PHASE:
             for pl in self.listOfPlayers:

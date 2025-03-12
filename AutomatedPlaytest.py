@@ -17,4 +17,4 @@ def playtestNtimes(gameParameters, numberOfTimes=100, exportFile=True, maxTurnCo
         if exportFile:
             metricsFile = path + "/game" + str(gameParameters.troopsWonBeginTurn) + "-" + str(gameParameters.defenseDices) + "-" \
                             + gameParameters.initialTerritoriesMode + "-" + gameParameters.troopsToNewTerritory + ".txt"
-            metrics.appendToFile(metricsFile)
+            metrics.appendToFile(metricsFile, len(newGame.listOfPlayers))
