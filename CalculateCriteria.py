@@ -8,7 +8,8 @@ import math
 
 class CalculateCriteria:
     def __init__(self):
-        self.allMetrics = []
+        self.allHeuristic = []
+        self.allMoves = []
         self.allWinners = []
         self.allTurnCounts = []
 
@@ -83,18 +84,19 @@ class CalculateCriteria:
 
     def calculateBranchingFactor(self): # media da quantidade de movimentos por turno, 0 é baixo, 1 é alto
         branchingFactor = []
-        for i in range(int(len(self.allMetrics[0][0])/2)):
+        for i in range(int(len(self.allMoves[0][0])/2)):
             branchingFactor.append(0)
 
         for game in range(len(self.allTurnCounts)):
             cumulativeSum = []
-            for i in range(int(len(self.allMetrics[0][0])/2)):
+            for i in range(int(len(self.allMoves[0][0])/2)):
                 cumulativeSum.append(0)
 
             for turn in range(round((self.allTurnCounts[game] - 1))):
                 #print(self.allMetrics[game][turn])
-                for pl in range(0, len(self.allMetrics[0][0]), 2):
-                    cumulativeSum[int(pl/2)] += self.allMetrics[game][turn][int(pl)+1]
+                print(list(range(0, len(self.allMoves[0][0]), 2)))
+                for pl in range(0, len(self.allMoves[0][0]), 2):
+                    cumulativeSum[int(pl/2)] += self.allMoves[game][turn][int(pl)+1]
 
             for i in range(len(cumulativeSum)):
                 branchingFactor[i] += min(1.0, math.log10((cumulativeSum[i] / (self.allTurnCounts[game])) + 1) / 2)
@@ -106,7 +108,11 @@ class CalculateCriteria:
         return sum(result) / len(result)
 
     def calculateCompletion(self):
-        allWins = self.allWinners.count(0) + self.allWinners.count(1)
+        values, counts = np.unique(self.allWinners, return_counts=True)
+
+        allWins = len(self.allWinners)
+        if -1 in values:
+            allWins = allWins - counts[locate(values, -1)]
 
         result = allWins / len(self.allTurnCounts)
 
@@ -191,24 +197,31 @@ class CalculateCriteria:
         with open(fileName, 'r') as f:
             allText = f.readlines()
 
-        gameMetrics = []
+        gameHeuristic = []
+        gameMoves = []
         i = 0
+        numPlayers = allText[i]
+        i = i + 1
         while i < len(allText):
             if allText[i] != '\n':
                 currentTurn = int(allText[i])
                 i = i + 1
                 allheuristic = []
+                allmoves = []
                 while allText[i] != '\n':
                     allheuristic.append(float(allText[i].split(":")[1]))
-                    allheuristic.append(float(allText[i+1].split(":")[1]))
+                    allmoves.append(float(allText[i+1].split(":")[1]))
                     i = i + 2
-                gameMetrics.append(allheuristic)
+                gameHeuristic.append(allheuristic)
+                gameMoves.append(allmoves)
                 i = i + 1
             else:
                 self.allTurnCounts.append(currentTurn)
                 self.allWinners.append(int(allText[i+1]))
-                self.allMetrics.append(gameMetrics)
-                gameMetrics = []
+                self.allHeuristic.append(gameHeuristic)
+                self.allMoves.append(gameMoves)
+                gameHeuristic = []
+                gameMoves = []
                 i = i + 3
 
         return
@@ -216,8 +229,9 @@ class CalculateCriteria:
 
 def run(filename):
     cc = CalculateCriteria()
-    cc.importMetricsFromFile(filename)
+    cc.importMetricsFromFile("/home/lana/Documentos/Risk-Generation/parameters/game3-2-random-min.txt")
 
+    """"
     print("Advantage:", cc.calculateAdvantage())
     print("Duration:", cc.calculateDuration())
     print("Drama:", cc.calculateDrama())
@@ -228,4 +242,6 @@ def run(filename):
     print("Killer Moves BestAntxAll:", cc.calculateKillerMovesBestAnt())
     print("Killer Moves BestAtualxAll:", cc.calculateKillerMovesBestAtual())
     print("Killer Moves Player:", cc.calculateKillerMovesPlayer())
+    """
 
+run("game3-22-random-min.txt")
