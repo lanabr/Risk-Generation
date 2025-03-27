@@ -60,24 +60,22 @@ class CalculateCriteria:
 
     def calculateLeadChange(self):
         cumulativeSum = 0
-        allValues = []
-        for gameTurns in self.allHeuristic:
-            heuristic = []
-            for i in range(int(len(self.allHeuristic[0][0])/2)):
-                heuristic.append(gameTurns[0][i])
+        for game in self.allHeuristic:
+            currentWinner = game[0].index(max(game[0]))
 
-            currentWinner = heuristic.index(max(heuristic))
-            currentLoser = heuristic.index(min(heuristic))
+            currentLosers = []
+            for player in range(0, len(game[0])):
+                if player != currentWinner:
+                    currentLosers.append(player)
 
             allChanges = 0
-            for turn in gameTurns:
-                if turn[currentWinner] < turn[currentLoser]:
+            for turn in game:
+                if max(turn) != turn[currentWinner]:
                     allChanges += 1
-                    currentLoser = 1 if currentWinner == 1 else 0
-                    currentWinner = 1 if currentWinner == 0 else 0
+                    currentLosers.append(currentWinner)
+                    currentWinner = turn.index(max(turn))
 
-            cumulativeSum += allChanges / (max((len(gameTurns) - 1), 1))
-            allValues.append(allChanges / (max((len(gameTurns) - 1), 1)))
+            cumulativeSum += allChanges / (max((len(game) - 1), 1))
 
         return cumulativeSum / len(self.allHeuristic)
 
@@ -121,10 +119,40 @@ class CalculateCriteria:
         for game in range(len(self.allHeuristic)):
             gameSum = []
 
-            for turn in range(1, len(self.allHeuristic[game])):
-                for pl in range(0, len(self.allHeuristic[0][0]), 2):
-                    for op in range(pl+2, len(self.allHeuristic[0][0]), 2):
+            for turn in range(1, len(self.allHeuristic[game]) - 1):
+                for pl in range(len(self.allHeuristic[0][0])):
+                    for op in range(pl+1, len(self.allHeuristic[0][0])):
                         gameSum.append((self.allHeuristic[game][turn][pl] - self.allHeuristic[game][turn][op]) - (self.allHeuristic[game][turn-1][pl] - self.allHeuristic[game][turn-1][op]))
+
+            if len(gameSum) > 0:
+                cumulativeSum += max(gameSum)
+
+        return cumulativeSum / len(self.allHeuristic)
+
+    def calculateKillerMovesWinner(self):
+        cumulativeSum = 0
+
+        for game in range(len(self.allHeuristic)):
+            gameSum = []
+
+            for turn in range(1, len(self.allHeuristic[game]) - 1):
+                for op in range(len(self.allHeuristic[0][0])):
+                    gameSum.append((self.allHeuristic[game][turn][self.allWinners[game]] - self.allHeuristic[game][turn][op]) - (self.allHeuristic[game][turn-1][self.allWinners[game]] - self.allHeuristic[game][turn-1][op]))
+
+            if len(gameSum) > 0:
+                cumulativeSum += max(gameSum)
+
+        return cumulativeSum / len(self.allHeuristic)
+
+    def calculateKillerMovesPlayer(self):
+        cumulativeSum = 0
+
+        for game in range(len(self.allHeuristic)):
+            gameSum = []
+
+            for turn in range(1, len(self.allHeuristic[game]) - 1):
+                for pl in range(len(self.allHeuristic[0][0])):
+                    gameSum.append(self.allHeuristic[game][turn][pl] - self.allHeuristic[game][turn-1][pl])
 
             if len(gameSum) > 0:
                 cumulativeSum += max(gameSum)
@@ -137,14 +165,14 @@ class CalculateCriteria:
         for game in range(len(self.allHeuristic)):
             gameSum = []
 
-            for turn in range(1, len(self.allHeuristic[game])):
+            for turn in range(1, len(self.allHeuristic[game]) - 1):
                 bestAnt = 0
                 bestValue = -1
-                for pl in range(0, len(self.allHeuristic[0][0]), 2):
-                    if self.allHeuristic[game][turn][pl] > bestValue:
+                for pl in range(len(self.allHeuristic[0][0])):
+                    if self.allHeuristic[game][turn-1][pl] > bestValue:
                         bestValue = self.allHeuristic[game][turn][pl]
                         bestAnt = pl
-                for op in range(0, len(self.allHeuristic[0][0]), 2):
+                for op in range(len(self.allHeuristic[0][0])):
                     if op != bestAnt:
                         gameSum.append((self.allHeuristic[game][turn][bestAnt] - self.allHeuristic[game][turn][op]) - (self.allHeuristic[game][turn-1][bestAnt] - self.allHeuristic[game][turn-1][op]))
 
@@ -159,31 +187,16 @@ class CalculateCriteria:
         for game in range(len(self.allHeuristic)):
             gameSum = []
 
-            for turn in range(1, len(self.allHeuristic[game])):
+            for turn in range(1, len(self.allHeuristic[game]) - 1):
                 bestAnt = 0
                 bestValue = -1
-                for pl in range(0, len(self.allHeuristic[0][0]), 2):
-                    if self.allHeuristic[game][turn-1][pl] > bestValue:
+                for pl in range(len(self.allHeuristic[0][0])):
+                    if self.allHeuristic[game][turn][pl] > bestValue:
                         bestValue = self.allHeuristic[game][turn][pl]
                         bestAnt = pl
-                for op in range(0, len(self.allHeuristic[0][0]), 2):
+                for op in range(len(self.allHeuristic[0][0])):
                     if op != bestAnt:
                         gameSum.append((self.allHeuristic[game][turn][bestAnt] - self.allHeuristic[game][turn][op]) - (self.allHeuristic[game][turn - 1][bestAnt] - self.allHeuristic[game][turn - 1][op]))
-
-            if len(gameSum) > 0:
-                cumulativeSum += max(gameSum)
-
-        return cumulativeSum / len(self.allHeuristic)
-
-    def calculateKillerMovesPlayer(self):
-        cumulativeSum = 0
-
-        for game in range(len(self.allHeuristic)):
-            gameSum = []
-
-            for turn in range(1, len(self.allHeuristic[game])):
-                for pl in range(0, len(self.allHeuristic[0][0]), 2):
-                    gameSum.append(self.allHeuristic[game][turn][pl] - self.allHeuristic[game][turn-1][pl])
 
             if len(gameSum) > 0:
                 cumulativeSum += max(gameSum)
@@ -228,15 +241,16 @@ def run(filename):
     cc = CalculateCriteria()
     cc.importMetricsFromFile("/home/lana/Documentos/Risk-Generation/parameters/game3-2-random-min.txt")
 
-    print("Drama:", cc.calculateDrama())
+
     """"
     print("Advantage:", cc.calculateAdvantage())
     print("Duration:", cc.calculateDuration())
-    
+    print("Drama:", cc.calculateDrama())
     print("Lead Change:", cc.calculateLeadChange())
     print("Branching Factor:", cc.calculateBranchingFactor())
     print("Completion:", cc.calculateCompletion())
     print("Killer Moves AllxAll:", cc.calculateKillerMovesAll())
+    print("Killer Moves WinnerxAll:", cc.calculateKillerMovesWinner())
     print("Killer Moves BestAntxAll:", cc.calculateKillerMovesBestAnt())
     print("Killer Moves BestAtualxAll:", cc.calculateKillerMovesBestAtual())
     print("Killer Moves Player:", cc.calculateKillerMovesPlayer())
