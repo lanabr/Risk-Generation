@@ -15,8 +15,10 @@ class CalculateCriteria:
 
     def calculateAdvantage(self):
         allZero = self.allWinners.count(0)
+        allDraws = self.allWinners.count(-1)
+        allWinners = len(self.allWinners) - allDraws
 
-        return abs(allZero - (len(self.allWinners) / 2)) / (len(self.allWinners) / 2)
+        return abs(allZero - (allWinners / 2)) / (allWinners / 2)
 
     def calculateDuration(self):
         cumulativeSum = 0
@@ -241,9 +243,9 @@ def run(filename):
     cc = CalculateCriteria()
     cc.importMetricsFromFile("/home/lana/Documentos/Risk-Generation/parameters/game3-2-random-min.txt")
 
-
-    """"
     print("Advantage:", cc.calculateAdvantage())
+    """"
+    
     print("Duration:", cc.calculateDuration())
     print("Drama:", cc.calculateDrama())
     print("Lead Change:", cc.calculateLeadChange())
