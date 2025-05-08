@@ -4,6 +4,9 @@ import random
 import numpy as np
 import seaborn
 import math
+from collections import Counter
+
+from networkx.utils.random_sequence import cumulative_distribution
 
 
 class CalculateCriteria:
@@ -13,12 +16,60 @@ class CalculateCriteria:
         self.allWinners = []
         self.allTurnCounts = []
 
-    def calculateAdvantage(self):
-        allZero = self.allWinners.count(0)
-        allDraws = self.allWinners.count(-1)
-        allWinners = len(self.allWinners) - allDraws
+    def calculateCompletion(self):
+        values, counts = np.unique(self.allWinners, return_counts=True)
 
-        return abs(allZero - (allWinners / 2)) / (allWinners / 2)
+        allWins = len(self.allWinners)
+        if -1 in values:
+            allWins = allWins - counts[locate(values, -1)]
+
+        result = allWins / len(self.allTurnCounts)
+
+        return result
+
+    def calculateAdvantage(self):
+        winnerCount = Counter(self.allWinners)
+
+        winner = max(winnerCount)
+        loser = min(winnerCount)
+
+        diff = winnerCount[winner] - winnerCount[loser]
+        rate = diff / len(self.allWinners)
+
+        return rate
+
+    def calculateMovement(self): # todo: quando o jogador foi eliminado, como passar pro outro jogador? faz a passagem por uma lista?
+        cumulativeSum = []
+        for player in range(len(self.allMoves[0][0])):
+            cumulativeSum.append([])
+
+        for game in range(len(self.allMoves)):
+            playersMoves = []
+            for player in range(len(self.allMoves[game][0])):
+                playersMoves.append(0)
+
+            player = 0
+            for turn in range(len(self.allMoves[game])):
+                if self.allMoves[game][turn][player] > 1:
+                    playersMoves[player] += 1
+                else:
+                    if self.allMoves[game][turn][player] == 0 and self.allHeuristic[game][turn][player] == 0.0:
+                        playersMoves[player] += 1
+
+                player += 1
+                if player >= len(self.allMoves[game][turn]):
+                    player = 0
+
+            for player in range(len(playersMoves)):
+                cumulativeSum[player].append(playersMoves[player] / self.allTurnCounts[game])
+
+        resultPerPlayer = []
+        for player in cumulativeSum:
+            resultPerPlayer.append(sum(player) / len(player))
+
+        result = sum(resultPerPlayer) / len(resultPerPlayer)
+
+        return result
 
     def calculateDuration(self):
         cumulativeSum = 0
@@ -103,17 +154,6 @@ class CalculateCriteria:
             result.append(branchingFactor[i] / len(self.allTurnCounts))
 
         return sum(result) / len(result)
-
-    def calculateCompletion(self):
-        values, counts = np.unique(self.allWinners, return_counts=True)
-
-        allWins = len(self.allWinners)
-        if -1 in values:
-            allWins = allWins - counts[locate(values, -1)]
-
-        result = allWins / len(self.allTurnCounts)
-
-        return result
 
     def calculateKillerMovesAll(self):
         cumulativeSum = 0
@@ -234,23 +274,24 @@ class CalculateCriteria:
                 self.allMoves.append(gameMoves)
                 gameHeuristic = []
                 gameMoves = []
-                i = i + 3
+                i = i + 4
 
         return
 
 
 def run(filename):
     cc = CalculateCriteria()
-    cc.importMetricsFromFile("/home/lana/Documentos/Risk-Generation/parameters/game3-2-random-min.txt")
+    cc.importMetricsFromFile("/home/lana/Documentos/Risk-Generation/" + filename)
 
-    print("Advantage:", cc.calculateAdvantage())
+    print("Movement:", cc.calculateMovement())
     """"
+    print("Completion:", cc.calculateCompletion())
+    print("Advantage:", cc.calculateAdvantage())
     
     print("Duration:", cc.calculateDuration())
     print("Drama:", cc.calculateDrama())
     print("Lead Change:", cc.calculateLeadChange())
     print("Branching Factor:", cc.calculateBranchingFactor())
-    print("Completion:", cc.calculateCompletion())
     print("Killer Moves AllxAll:", cc.calculateKillerMovesAll())
     print("Killer Moves WinnerxAll:", cc.calculateKillerMovesWinner())
     print("Killer Moves BestAntxAll:", cc.calculateKillerMovesBestAnt())
@@ -258,4 +299,4 @@ def run(filename):
     print("Killer Moves Player:", cc.calculateKillerMovesPlayer())
     """
 
-run("game3-22-random-min.txt")
+run("parameters/game3-2-random-min.txt")
