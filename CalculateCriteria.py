@@ -38,7 +38,7 @@ class CalculateCriteria:
 
         return rate
 
-    def calculateMovement(self): # todo: quando o jogador foi eliminado, como passar pro outro jogador? faz a passagem por uma lista?
+    def calculateMovement(self):
         cumulativeSum = []
         for player in range(len(self.allMoves[0][0])):
             cumulativeSum.append([])
@@ -46,22 +46,33 @@ class CalculateCriteria:
         for game in range(len(self.allMoves)):
             playersMoves = []
             for player in range(len(self.allMoves[game][0])):
-                playersMoves.append(0)
+                playersMoves.append([])
 
             player = 0
-            for turn in range(len(self.allMoves[game])):
-                if self.allMoves[game][turn][player] > 1:
-                    playersMoves[player] += 1
+            turn = 0
+            while turn < len(self.allMoves[game]):
+                if self.allMoves[game][turn][player] > 1: # jogador tem mais de um movimento
+                    playersMoves[player].append(1)
+                    player += 1
+                    turn += 1
+                elif self.allMoves[game][turn][player] <= 1 and self.allHeuristic[game][turn][player] > 0.0:
+                    playersMoves[player].append(0)
+                    player += 1
+                    turn += 1
                 else:
-                    if self.allMoves[game][turn][player] == 0 and self.allHeuristic[game][turn][player] == 0.0:
-                        playersMoves[player] += 1
+                    if self.allMoves[game][turn][player] == 0 and self.allHeuristic[game][turn][player] == 0.0: # jogador perdeu
+                        playersMoves[player].append(1)
+                        player += 1
 
-                player += 1
                 if player >= len(self.allMoves[game][turn]):
                     player = 0
 
+                if turn == len(self.allMoves[game]) - 1:
+                    break
+
             for player in range(len(playersMoves)):
-                cumulativeSum[player].append(playersMoves[player] / self.allTurnCounts[game])
+                print(playersMoves[player])
+                cumulativeSum[player].append(sum(playersMoves[player]) / len(playersMoves[player]))
 
         resultPerPlayer = []
         for player in cumulativeSum:
@@ -70,6 +81,8 @@ class CalculateCriteria:
         result = sum(resultPerPlayer) / len(resultPerPlayer)
 
         return result
+
+
 
     def calculateDuration(self):
         cumulativeSum = 0
